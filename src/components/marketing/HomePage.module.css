@@ -1,0 +1,160 @@
+.hero {
+  width: min(calc(100% - 2rem), var(--layout-wide));
+  margin-inline: auto;
+  padding: clamp(4rem, 8vw, 8rem) 0 var(--section-space);
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(32rem, 1.2fr);
+  align-items: center;
+  gap: clamp(2rem, 5vw, 6rem);
+}
+
+.heroCopy { position: relative; z-index: 2; }
+.hero h1 { max-width: 12ch; margin: 0; font-size: clamp(3.6rem, 7.2vw, 7.8rem); font-weight: 670; line-height: 0.91; letter-spacing: -0.075em; }
+.lead { max-width: 35rem; margin: 2rem 0 0; color: var(--color-text-muted); font-size: clamp(1.05rem, 1.5vw, 1.3rem); line-height: 1.55; }
+.actions { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 2.25rem; }
+.heroVisual { position: relative; min-width: 0; }
+.conceptNote { position: absolute; right: 1.4rem; bottom: 1rem; margin: 0; color: var(--color-text-faint); font-size: 0.63rem; letter-spacing: 0.03em; }
+.section { width: min(calc(100% - 2rem), var(--layout-wide)); margin-inline: auto; padding-block: var(--section-space); }
+.sectionHeading { max-width: 52rem; }
+.sectionHeading h2, .together h2, .displayIntro h2, .appsHeading h2, .setupHeading h2, .remote h2, .privacy h2, .closing h2 {
+  margin: 0;
+  font-size: clamp(3rem, 6vw, 6.6rem);
+  font-weight: 650;
+  line-height: 0.96;
+  letter-spacing: -0.065em;
+}
+.sectionHeading > p:last-child { max-width: 40rem; margin: 1.5rem 0 0; color: var(--color-text-muted); font-size: 1.15rem; }
+
+.ownership { border-top: 1px solid var(--color-line); }
+.principles { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(2rem, 4vw, 5rem); margin-top: clamp(4rem, 8vw, 8rem); }
+.principles article { padding-top: 1.2rem; border-top: 1px solid var(--color-line-strong); }
+.principles span { color: var(--color-accent); font-size: 0.7rem; font-weight: 750; }
+.principles h3 { margin: 2.8rem 0 0.6rem; font-size: clamp(1.6rem, 3vw, 2.5rem); letter-spacing: -0.04em; }
+.principles p { max-width: 24rem; margin: 0; color: var(--color-text-muted); }
+
+.together { display: grid; grid-template-columns: 0.72fr 1.28fr; gap: clamp(4rem, 8vw, 10rem); align-items: end; }
+.togetherCopy p:last-child { max-width: 31rem; margin: 1.5rem 0 0; color: var(--color-text-muted); font-size: 1.1rem; }
+.systemLine { display: grid; }
+.systemLine div { min-height: 6.3rem; padding: 1.25rem 0; border-top: 1px solid var(--color-line-strong); display: grid; grid-template-columns: 3rem 0.8fr 1.2fr; align-items: center; gap: 1rem; }
+.systemLine span { color: var(--color-accent); font-size: 0.65rem; font-weight: 750; }
+.systemLine strong { font-size: 1.15rem; letter-spacing: -0.02em; }
+.systemLine small { color: var(--color-text-muted); font-size: 0.85rem; }
+
+.products { width: 100%; padding-inline: max(1rem, calc((100% - var(--layout-wide)) / 2)); background: var(--color-surface); }
+.productGrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; margin-top: 4rem; }
+.productCard { overflow: hidden; border: 1px solid var(--color-line); border-radius: var(--radius-large); background: var(--color-canvas); }
+.productCard figure { border-radius: 0; }
+.productCopy { padding: clamp(1.5rem, 3vw, 2.5rem); }
+.productCopy h3 { margin: 0; font-size: clamp(2rem, 3.5vw, 3.2rem); font-weight: 650; letter-spacing: -0.055em; }
+.productCopy > p:not(.eyebrow) { min-height: 3.2rem; margin: 0.8rem 0 1.4rem; color: var(--color-text-muted); }
+.productCopy ul { display: grid; gap: 0.5rem; margin: 0 0 1.7rem; padding: 1.2rem 0 0; border-top: 1px solid var(--color-line); list-style: none; }
+.productCopy li { position: relative; padding-left: 1.2rem; color: var(--color-text-soft); font-size: 0.85rem; }
+.productCopy li::before { position: absolute; left: 0; top: 0.65em; width: 0.3rem; height: 0.3rem; border-radius: 50%; background: var(--color-accent); content: ""; }
+.productCopy > a { display: inline-flex; min-height: 2.75rem; align-items: center; gap: 0.65rem; color: var(--color-accent); font-size: 0.85rem; font-weight: 720; }
+.productCopy > a:hover span { transform: translate(2px, -2px); }
+.productCopy > a span { transition: transform var(--duration-fast); }
+.centerAction { display: flex; justify-content: center; margin-top: 2.5rem; }
+
+.displaySection { display: grid; grid-template-columns: 0.82fr 1.18fr; gap: clamp(3rem, 7vw, 9rem); align-items: center; }
+.displayIntro h2 { font-size: clamp(2.6rem, 5.2vw, 5.7rem); }
+.displayIntro > p:last-child { max-width: 35rem; margin: 1.6rem 0 0; color: var(--color-text-muted); font-size: 1.08rem; }
+.displayDemo { min-width: 0; }
+.oledPanel { padding: clamp(1rem, 2vw, 1.7rem); overflow: hidden; border: 1px solid rgba(255,255,255,0.09); border-radius: var(--radius-large); background: #07090b; color: #f4f6f8; box-shadow: 0 2rem 6rem rgba(0,0,0,0.24); }
+.oledHeader { min-height: 3rem; display: flex; align-items: center; justify-content: space-between; color: #8f97a2; font-size: 0.7rem; }
+.oledHeader span { display: flex; align-items: center; gap: 0.55rem; color: #d8dce1; font-weight: 650; }
+.oledHeader i { width: 0.5rem; height: 0.5rem; border-radius: 50%; background: #60c79f; box-shadow: 0 0 0 0.25rem rgba(96,199,159,0.11); }
+.oledMain { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 0.7rem; }
+.oledMain > div { min-height: 9rem; padding: clamp(1rem, 2vw, 1.5rem); border: 1px solid rgba(255,255,255,0.07); border-radius: 1.2rem; background: #111419; display: flex; flex-direction: column; }
+.oledMain span { color: #8e96a1; font-size: 0.67rem; }
+.oledMain strong { margin-top: auto; font-size: clamp(1.15rem, 2.4vw, 1.8rem); letter-spacing: -0.04em; }
+.oledMain small { color: #747d89; font-size: 0.62rem; }
+.oledStorage { grid-row: span 2; }
+.oledStorage strong { font-size: clamp(2rem, 4vw, 4rem); }
+.oledStorage > i { height: 0.4rem; margin-top: 0.9rem; overflow: hidden; border-radius: 1rem; background: #262b33; }
+.oledStorage > i b { display: block; width: 42%; height: 100%; background: #5d84ef; }
+.oledApps div { display: flex; gap: 0.4rem; margin-top: 1rem; }
+.oledApps div i { display: grid; width: 1.65rem; height: 1.65rem; place-items: center; border-radius: 0.45rem; background: #202733; color: #8ba7f5; font-size: 0.48rem; font-style: normal; font-weight: 750; }
+.proControls { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; margin-top: 1px; overflow: hidden; border-radius: 1.2rem; background: var(--color-line); }
+.proControls div { padding: 1.3rem; background: var(--color-surface); }
+.proControls span { font-weight: 700; }
+.proControls p { margin: 0.45rem 0 0; color: var(--color-text-muted); font-size: 0.76rem; }
+
+.apps { border-top: 1px solid var(--color-line); }
+.appsHeading { display: flex; align-items: flex-end; justify-content: space-between; gap: 2rem; }
+.appRail { display: grid; grid-template-columns: repeat(6, minmax(11rem, 1fr)); gap: 0.75rem; margin-top: 4rem; overflow-x: auto; padding-bottom: 0.6rem; scroll-snap-type: x proximity; scrollbar-width: thin; }
+.appRail article { min-height: 18rem; padding: 1.3rem; border: 1px solid var(--color-line); border-radius: var(--radius-medium); background: var(--color-surface); display: flex; flex-direction: column; scroll-snap-align: start; transition: transform var(--duration-normal) var(--ease-out), border-color var(--duration-normal); }
+.appRail article:hover { border-color: var(--color-line-strong); transform: translateY(-4px); }
+.appRail article > span { display: grid; width: 2.8rem; height: 2.8rem; place-items: center; border-radius: 0.85rem; background: color-mix(in srgb, var(--color-accent) 10%, var(--color-surface)); color: var(--color-accent); font-size: 0.7rem; font-weight: 760; }
+.appRail h3 { margin: auto 0 0.5rem; font-size: 1.1rem; letter-spacing: -0.025em; }
+.appRail p { margin: 0; color: var(--color-text-muted); font-size: 0.8rem; }
+.appNote { margin: 1rem 0 0; color: var(--color-text-faint); font-size: 0.68rem; }
+
+.setup { display: grid; grid-template-columns: 0.82fr 1.18fr; gap: clamp(4rem, 8vw, 10rem); }
+.setupHeading > p:last-child { max-width: 34rem; margin: 1.5rem 0 0; color: var(--color-text-muted); }
+.steps { margin: 0; padding: 0; list-style: none; }
+.steps li { min-height: 7rem; padding: 1.2rem 0; border-top: 1px solid var(--color-line-strong); display: grid; grid-template-columns: 3rem 1fr; gap: 1rem; }
+.steps li > span { color: var(--color-accent); font-size: 0.66rem; font-weight: 760; }
+.steps h3 { margin: 0; font-size: 1.15rem; }
+.steps p { margin: 0.3rem 0 0; color: var(--color-text-muted); font-size: 0.86rem; }
+
+.remote { min-height: 42rem; padding-inline: clamp(1.5rem, 7vw, 7rem); border-radius: var(--radius-large); background: #101319; color: #f5f7fa; display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: center; }
+.remoteSignal { position: relative; min-height: 28rem; display: grid; place-items: center; }
+.remoteSignal span { position: absolute; width: 75%; aspect-ratio: 1; border: 1px solid rgba(114,150,246,0.24); border-radius: 50%; }
+.remoteSignal span:nth-child(2) { width: 52%; opacity: 0.8; }
+.remoteSignal span:nth-child(3) { width: 29%; opacity: 0.65; }
+.remoteSignal i { width: 3rem; height: 3rem; border-radius: 1rem; background: #7296f6; box-shadow: 0 0 0 1rem rgba(114,150,246,0.08), 0 0 4rem rgba(114,150,246,0.25); }
+.remote .eyebrow { color: #8e98a8; }
+.remote h2 { font-size: clamp(3rem, 5.3vw, 5.8rem); }
+.remoteCopy > p:not(.eyebrow) { max-width: 36rem; color: #9ca4af; }
+.remoteCopy .detail { margin-top: 2rem; font-size: 0.72rem; }
+
+.privacy { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(3rem, 7vw, 9rem); align-items: end; }
+.privacy ul { margin: 0; padding: 0; list-style: none; }
+.privacy li { min-height: 4.6rem; border-top: 1px solid var(--color-line-strong); display: grid; grid-template-columns: 3rem 1fr; align-items: center; color: var(--color-text-soft); }
+.privacy li span { color: var(--color-accent); font-size: 0.66rem; font-weight: 760; }
+
+.closing { width: min(calc(100% - 2rem), var(--layout-wide)); min-height: 44rem; margin: 0 auto var(--section-space); padding: clamp(3rem, 7vw, 7rem); border-radius: var(--radius-large); background: var(--color-surface); display: flex; flex-direction: column; justify-content: center; align-items: flex-start; }
+.closing h2 { font-size: clamp(3.5rem, 8vw, 8.5rem); }
+
+@media (max-width: 1060px) {
+  .hero { grid-template-columns: 1fr; padding-top: 5rem; }
+  .hero h1 { max-width: 11ch; }
+  .heroVisual { width: 100%; }
+  .productGrid { grid-template-columns: 1fr; }
+  .productCard { display: grid; grid-template-columns: 1.05fr 0.95fr; }
+  .productCopy > p:not(.eyebrow) { min-height: 0; }
+  .displaySection, .setup { grid-template-columns: 1fr; }
+  .displayIntro, .setupHeading { max-width: 52rem; }
+  .together { grid-template-columns: 1fr; }
+  .systemLine { max-width: 55rem; margin-left: auto; width: 100%; }
+}
+
+@media (max-width: 760px) {
+  .hero { width: min(calc(100% - 1.5rem), var(--layout-wide)); padding-top: 4rem; }
+  .hero h1 { font-size: clamp(3.25rem, 15vw, 5rem); }
+  .lead { font-size: 1rem; }
+  .section { width: min(calc(100% - 1.5rem), var(--layout-wide)); }
+  .products { width: 100%; padding-inline: 0.75rem; }
+  .principles { grid-template-columns: 1fr; }
+  .principles h3 { margin-top: 1.8rem; }
+  .productCard { grid-template-columns: 1fr; }
+  .oledMain { grid-template-columns: 1fr 1fr; }
+  .oledStorage { grid-column: 1 / -1; grid-row: auto; }
+  .oledMain > div { min-height: 7.5rem; }
+  .remote { width: min(calc(100% - 1.5rem), var(--layout-wide)); min-height: auto; padding-block: 3rem; grid-template-columns: 1fr; gap: 1rem; }
+  .remoteSignal { min-height: 18rem; }
+  .privacy { grid-template-columns: 1fr; }
+  .appsHeading { align-items: flex-start; flex-direction: column; }
+  .closing { width: calc(100% - 1.5rem); min-height: 34rem; padding: 2rem; }
+}
+
+@media (max-width: 430px) {
+  .actions { display: grid; }
+  .actions a { width: 100%; }
+  .conceptNote { position: static; margin: 0.7rem 0 0; }
+  .systemLine div { grid-template-columns: 2rem 1fr; }
+  .systemLine small { grid-column: 2; }
+  .proControls { grid-template-columns: 1fr; }
+  .oledMain { grid-template-columns: 1fr; }
+  .oledStorage { grid-column: auto; }
+}

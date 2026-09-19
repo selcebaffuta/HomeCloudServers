@@ -1,0 +1,64 @@
+:root {
+  color-scheme: light dark;
+  --color-canvas: #f4f5f6;
+  --color-surface: #ffffff;
+  --color-surface-soft: #f9fafb;
+  --color-surface-muted: #eceef1;
+  --color-ink: #15171a;
+  --color-text-soft: #3f444b;
+  --color-text-muted: #6d737d;
+  --color-text-faint: #949aa4;
+  --color-line: rgba(21, 23, 26, 0.09);
+  --color-line-strong: rgba(21, 23, 26, 0.16);
+  --color-accent: #4776f2;
+  --color-accent-strong: #315dd1;
+  --color-success: #24845f;
+  --color-warning: #a66b12;
+  --color-danger: #b33a45;
+  --visual-stage: #e8eaed;
+  --visual-glow: rgba(71, 118, 242, 0.18);
+  --device-body: #d9dcdf;
+  --device-line: rgba(20, 23, 26, 0.18);
+  --device-mark: #202328;
+  --device-label: #747b84;
+  --layout-wide: 88rem;
+  --layout-content: 74rem;
+  --section-space: clamp(6rem, 10vw, 10rem);
+  --radius-small: 0.75rem;
+  --radius-medium: 1.25rem;
+  --radius-large: clamp(1.6rem, 3vw, 2.5rem);
+  --radius-pill: 999px;
+  --shadow-soft: 0 1px 2px rgba(18, 21, 30, 0.03), 0 1rem 3rem rgba(18, 21, 30, 0.05);
+  --shadow-medium: 0 1.5rem 5rem rgba(18, 21, 30, 0.12);
+  --ease-out: cubic-bezier(0.2, 0.75, 0.25, 1);
+  --duration-fast: 160ms;
+  --duration-normal: 240ms;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-canvas: #0e1013;
+    --color-surface: #171a1f;
+    --color-surface-soft: #1c2026;
+    --color-surface-muted: #232830;
+    --color-ink: #f4f5f7;
+    --color-text-soft: #c8ccd2;
+    --color-text-muted: #9299a3;
+    --color-text-faint: #69717c;
+    --color-line: rgba(255, 255, 255, 0.08);
+    --color-line-strong: rgba(255, 255, 255, 0.15);
+    --color-accent: #7296f6;
+    --color-accent-strong: #93adf8;
+    --color-success: #5bc59c;
+    --color-warning: #e5b45d;
+    --color-danger: #ef7d87;
+    --visual-stage: #171a1f;
+    --visual-glow: rgba(92, 133, 244, 0.15);
+    --device-body: #2c3138;
+    --device-line: rgba(255, 255, 255, 0.12);
+    --device-mark: #edf0f3;
+    --device-label: #8d949d;
+    --shadow-soft: 0 1px 2px rgba(0,0,0,0.2), 0 1rem 3rem rgba(0,0,0,0.14);
+    --shadow-medium: 0 1.5rem 5rem rgba(0,0,0,0.28);
+  }
+}

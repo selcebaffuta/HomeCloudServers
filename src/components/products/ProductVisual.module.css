@@ -1,0 +1,97 @@
+.visual {
+  position: relative;
+  width: 100%;
+  margin: 0;
+  overflow: hidden;
+  border-radius: var(--radius-large);
+  background: var(--visual-stage);
+  isolation: isolate;
+}
+
+.hero { min-height: clamp(28rem, 52vw, 46rem); }
+.compact { min-height: 23rem; }
+.stage { position: absolute; inset: 0; display: grid; place-items: center; perspective: 1200px; }
+
+.stage::before {
+  position: absolute;
+  width: 75%;
+  height: 38%;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--visual-glow) 0%, transparent 68%);
+  content: "";
+  filter: blur(15px);
+  transform: translateY(32%);
+}
+
+.shadow { position: absolute; width: 58%; height: 9%; bottom: 14%; border-radius: 50%; background: rgba(0, 0, 0, 0.2); filter: blur(24px); transform: rotate(-2deg); }
+.device {
+  position: relative;
+  width: min(65%, 34rem);
+  aspect-ratio: 1.28;
+  border: 1px solid var(--device-line);
+  border-radius: clamp(1.6rem, 4vw, 3.2rem);
+  background: var(--device-body);
+  box-shadow: inset 0 1px rgba(255,255,255,0.8), inset 0 -1px rgba(0,0,0,0.08), 0 2.5rem 5rem rgba(18, 21, 30, 0.18);
+  transform: rotateY(-8deg) rotateX(4deg) rotateZ(-1deg);
+  transform-style: preserve-3d;
+}
+
+.topEdge { position: absolute; inset: 0 5% auto; height: 2px; border-radius: 50%; background: rgba(255,255,255,0.68); }
+.screen {
+  position: absolute;
+  inset: 11% 9% 21%;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: clamp(1rem, 2.5vw, 1.65rem);
+  background: #080a0d;
+  color: #f5f7fa;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,0.42), 0 0 0 5px rgba(0,0,0,0.1);
+}
+.screenUi { height: 100%; padding: clamp(0.8rem, 2vw, 1.4rem); display: flex; flex-direction: column; }
+.screenTop { display: flex; align-items: center; gap: 0.45rem; color: #9299a5; font-size: clamp(0.38rem, 0.8vw, 0.67rem); }
+.screenTop b { color: #dfe2e7; font-weight: 650; }
+.statusDot { width: 0.45rem; height: 0.45rem; border-radius: 50%; background: #60c79f; box-shadow: 0 0 0 0.2rem rgba(96,199,159,0.1); }
+.screenTime { margin-left: auto; }
+.screenGrid { flex: 1; display: grid; grid-template-columns: 1.25fr 0.9fr; grid-template-rows: 1fr auto; gap: clamp(0.35rem, 1vw, 0.7rem); margin-top: 8%; }
+.storageCard, .appsCard, .miniStatus { border: 1px solid rgba(255,255,255,0.08); border-radius: clamp(0.5rem, 1.2vw, 0.9rem); background: #12161c; }
+.storageCard, .appsCard { padding: clamp(0.55rem, 1.4vw, 1rem); display: grid; align-content: start; }
+.storageCard > span, .appsCard > span { color: #8e96a2; font-size: clamp(0.36rem, 0.7vw, 0.6rem); }
+.storageCard strong { margin-top: auto; font-size: clamp(0.8rem, 2vw, 1.4rem); letter-spacing: -0.05em; }
+.storageCard > i { display: block; height: 0.3rem; margin-top: 0.35rem; overflow: hidden; border-radius: 1rem; background: #252b35; }
+.storageCard > i span { display: block; width: 42%; height: 100%; border-radius: inherit; background: #5c85f4; }
+.appsCard strong { margin-top: 0.25rem; font-size: clamp(0.55rem, 1vw, 0.82rem); }
+.appsCard div { display: flex; gap: 0.25rem; margin-top: auto; }
+.appsCard div i { width: 0.7rem; height: 0.7rem; border-radius: 0.24rem; background: #293140; }
+.appsCard div i:first-child { background: #315dd1; }
+.miniStatus { display: flex; min-height: 1.6rem; align-items: center; gap: 0.35rem; padding: 0 0.6rem; color: #a8afb9; font-size: clamp(0.32rem, 0.65vw, 0.52rem); }
+.miniStatus span { width: 0.3rem; height: 0.3rem; border-radius: 50%; background: #60c79f; }
+.frontMark { position: absolute; inset: 50% auto auto 50%; width: 3.5rem; height: 3.5rem; transform: translate(-50%, -50%); }
+.frontMark span, .frontMark i { position: absolute; border-radius: 50%; background: var(--device-mark); }
+.frontMark span:first-child { width: 2.15rem; height: 2.15rem; inset: 0 auto auto 0; }
+.frontMark span:nth-child(2) { width: 1.9rem; height: 1.9rem; inset: auto 0 0 auto; opacity: 0.66; }
+.frontMark i { width: 0.9rem; height: 0.9rem; inset: 1.25rem auto auto 1.45rem; background: var(--color-accent); }
+.controlBar { position: absolute; left: 15%; right: 25%; bottom: 8.5%; height: 7.5%; padding: 0 7%; display: flex; align-items: center; justify-content: space-between; border: 1px solid rgba(255,255,255,0.08); border-radius: 0.65rem; background: #0a0c0f; }
+.controlBar span { width: 8%; aspect-ratio: 1; border-radius: 50%; background: #69717d; }
+.controlBar .controlActive { width: 22%; aspect-ratio: 3; border-radius: 1rem; background: #4776f2; }
+.rotary { position: absolute; right: 9%; bottom: 5.4%; width: 12%; aspect-ratio: 1; padding: 2.2%; border: 1px solid rgba(0,0,0,0.3); border-radius: 50%; background: #333940; box-shadow: inset 0 0 0 2px rgba(255,255,255,0.12), 0 0.35rem 0.7rem rgba(0,0,0,0.28); }
+.rotary i { display: block; width: 2px; height: 22%; margin: 8% auto 0; border-radius: 2px; background: #b7bdc5; }
+.vent { position: absolute; right: 8%; top: 50%; width: 0.25rem; height: 20%; transform: translateY(-50%); border-radius: 2rem; background: var(--device-line); opacity: 0.42; }
+.productLabel { position: absolute; left: 8%; bottom: 7%; color: var(--device-label); font-size: clamp(0.45rem, 1vw, 0.7rem); font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+.display .device { width: min(72%, 38rem); aspect-ratio: 1.38; background: #dadddf; }
+.control .device { width: min(76%, 41rem); aspect-ratio: 1.55; background: #c9cdd1; }
+
+@media (max-width: 620px) {
+  .hero { min-height: 27rem; }
+  .compact { min-height: 19rem; }
+  .device { width: 78%; }
+  .display .device { width: 86%; }
+  .control .device { width: 91%; }
+  .shadow { width: 72%; bottom: 17%; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .device { animation: reveal-device 850ms var(--ease-out) both; }
+  @keyframes reveal-device {
+    from { opacity: 0; transform: translateY(2rem) rotateY(-8deg) rotateX(4deg) rotateZ(-1deg); }
+  }
+}

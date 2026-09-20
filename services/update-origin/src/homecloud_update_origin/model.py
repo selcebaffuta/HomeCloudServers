@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import datetime as dt
+import hashlib
 import re
 import urllib.parse
 
@@ -179,3 +180,60 @@ def build_plan(
         },
     }
     return validate_plan(plan, origin)
+
+
+def validate_trust_metadata(
+    metadata: dict, root_key_id: str, *, now=None, check_time=True,
+) -> dict:
+    expected = {
+        "schema", "product", "sequence", "published_at", "expires_at",
+        "root_key_id", "release_keys",
+    }
+    if (
+        not isinstance(metadata, dict) or set(metadata) != expected
+        or type(metadata.get("schema")) is not int or metadata["schema"] != 1
+        or metadata.get("product") != "homecloud-trust"
+        or type(metadata.get("sequence")) is not int
+        or not 1 <= metadata["sequence"] <= 2**63 - 1
+        or metadata.get("root_key_id") != root_key_id
+    ):
+        raise UpdateOriginError("Metadata trust non validi.")
+    published = _timestamp(metadata.get("published_at"))
+    expires = _timestamp(metadata.get("expires_at"))
+    current = now or dt.datetime.now(dt.timezone.utc)
+    if current.tzinfo is None or current.utcoffset() is None:
+        raise UpdateOriginError("L'orario trust deve includere il fuso orario.")
+    if expires <= published or expires - published > dt.timedelta(days=366):
+        raise UpdateOriginError("Intervallo temporale trust non valido.")
+    if check_time and (
+        published > current + dt.timedelta(minutes=10) or expires <= current
+    ):
+        raise UpdateOriginError("Metadata trust scaduti o non ancora validi.")
+
+    keys = metadata.get("release_keys")
+    if not isinstance(keys, list) or not 1 <= len(keys) <= 8:
+        raise UpdateOriginError("Keyring release non valido.")
+    ids = []
+    active = 0
+    for key in keys:
+        pem = key.get("public_key_pem") if isinstance(key, dict) else None
+        if (
+            not isinstance(key, dict)
+            or set(key) != {"key_id", "algorithm", "public_key_pem", "status"}
+            or key.get("algorithm") != "rsa-sha256"
+            or key.get("status") not in {"active", "revoked"}
+            or not isinstance(key.get("key_id"), str)
+            or not HASH_PATTERN.fullmatch(key["key_id"])
+            or not isinstance(pem, str) or not 1 <= len(pem.encode()) <= 16 * 1024
+            or not pem.startswith("-----BEGIN PUBLIC KEY-----\n")
+            or not pem.endswith("-----END PUBLIC KEY-----\n")
+            or hashlib.sha256(pem.encode()).hexdigest() != key["key_id"]
+        ):
+            raise UpdateOriginError("Chiave release nei metadata trust non valida.")
+        ids.append(key["key_id"])
+        active += key["status"] == "active"
+    if ids != sorted(set(ids)) or not active:
+        raise UpdateOriginError(
+            "Le chiavi release devono essere univoche e includerne una attiva.",
+        )
+    return metadata

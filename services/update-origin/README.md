@@ -77,6 +77,11 @@ L'installer:
 - installa un virtual host Nginx HTTPS che accetta soltanto GET/HEAD;
 - convalida la configurazione prima del reload.
 
+Le chiavi pubbliche release vengono conservate per digest in
+`/etc/homecloud-update-origin/release-keys.d/`. Rieseguire l'installer con una
+nuova chiave durante l'overlap la aggiunge senza sostituire quella legacy. Le
+vecchie chiavi pubbliche non sono segrete e servono a verificare la storia.
+
 Non richiede né installa la chiave privata di release.
 
 ## Preparazione di una release
@@ -160,6 +165,107 @@ del canale viene aggiornato con replace atomici; durante il brevissimo switch un
 client concorrente può al massimo osservare una firma non corrispondente e
 riprovare, mai accettare contenuto non firmato.
 
+## Promozione staging → stable
+
+Pubblicare e collaudare prima la release su `staging`, quindi promuoverla senza
+ricostruire o riscaricare nulla:
+
+```bash
+sudo homecloud-update-origin publish \
+  --origin https://updates.example.com \
+  --channel staging \
+  --plan /staging/release.json \
+  --signature /staging/release.json.sig \
+  --bundle /staging/homecloud-release.tar.gz
+
+sudo homecloud-update-origin promote \
+  --origin https://updates.example.com \
+  --platform debian-13-arm64
+```
+
+La promozione riusa byte per byte piano e firma staging. Il canale non è parte
+del documento firmato: generare un nuovo JSON stable richiederebbe una seconda
+firma e creerebbe due dichiarazioni per lo stesso artefatto. Prima dello switch
+il comando riverifica firma, scadenza, piattaforma, hash e dimensione del bundle,
+nonché la monotonia di stable. Il lock è lo stesso del publisher.
+
+L'audit append-only locale è in
+`/srv/homecloud-updates/.audit/promotion.jsonl`, mode `0600`, e viene sincronizzato
+prima dello switch. Non è un log anti-manomissione contro root: deve essere
+esportato nei backup operativi.
+
+Il protocollo v1 usa JSON e firma detached, quindi non può sostituire la coppia
+con un singolo rename. Ogni file usa temp+`fsync`+rename; durante lo switch una
+coppia incoerente fallisce sempre la verifica. Il piano viene scritto prima
+della firma, così un retry idempotente ripara in sicurezza un'interruzione tra i
+due rename. Una futura v2 potrà usare un envelope firmato singolo.
+
+## Rotazione coordinata delle chiavi
+
+La release key e la **trust root** sono ruoli differenti. La trust root privata
+rimane offline e firma soltanto `trust.json`; il server pubblico riceve la sua
+chiave pubblica. Una nuova release key viene accettata dai client solo se inclusa
+in metadata trust root-signed con sequence monotona.
+
+Preparare offline i metadata di overlap:
+
+```bash
+homecloud-update-origin prepare-trust \
+  --sequence 1 \
+  --root-public-key /supporto-offline/trust-root-public.pem \
+  --active-key /supporto-offline/release-old-public.pem \
+  --active-key /supporto-offline/release-new-public.pem \
+  --output /staging/trust.json
+
+openssl dgst -sha256 \
+  -sign /supporto-offline/trust-root-private.pem \
+  -out /staging/trust.json.sig \
+  /staging/trust.json
+```
+
+Sul server si pubblicano soltanto metadata, firma e chiave root **pubblica**:
+
+```bash
+sudo homecloud-update-origin publish-trust \
+  --origin https://updates.example.com \
+  --channel stable \
+  --root-public-key /staging/trust-root-public.pem \
+  --metadata /staging/trust.json \
+  --signature /staging/trust.json.sig
+```
+
+Il client aggiornato deriva `/v1/stable/trust.json` dall'URL del piano, verifica
+la firma con `/etc/homecloud/update-trust-root.pem` e conserva in un singolo file
+atomico payload e firma. Impone:
+
+- sequence trust monotona e scadenza;
+- stesso contenuto per una sequence già vista;
+- chiavi RSA valide e identificate dall'hash del PEM;
+- almeno una release key attiva;
+- revoca esplicita e irreversibile;
+- firma del piano e del bundle con una chiave ancora attiva.
+
+La trust root viene installata in fabbrica con:
+
+```bash
+sudo ./install-appliance.sh \
+  --update-trust-root /supporto-offline/trust-root-public.pem
+```
+
+L'installer HomeCloudSetup rifiuta di sostituire automaticamente una root già
+presente. Durante l'overlap conservare old e new come `active`, distribuire e
+verificare il client, iniziare a firmare con new, quindi pubblicare una sequence
+successiva con old `revoked`. Non cancellare old dai metadata: la revoca deve
+restare esplicita.
+
+Limite importante: gli agenti già distribuiti che conoscono soltanto la vecchia
+release key non sanno interpretare la trust root. Il normale tarball HomeCloud
+non aggiorna il codice privilegiato `homecloud_setup`; questi device richiedono
+una reinstallazione/aggiornamento autenticato dell'agente prima della revoca.
+Se la vecchia private key viene compromessa prima della migrazione, tali device
+richiedono recupero factory o fisico: il server non può risolvere in sicurezza
+questa assenza di trust anchor.
+
 ## Configurazione appliance
 
 Per Debian 13 ARM64, il file root-owned
@@ -187,15 +293,16 @@ Implementato:
 - verifica firma e pubblicazione atomica;
 - protezione da downgrade/replay del canale;
 - origine statica Nginx installabile su Debian;
+- promozione staging → stable verificata, idempotente e auditata;
+- keyring release con overlap e metadata trust root-signed;
+- revoca irreversibile e protezione rollback del trust store client;
 - test senza dipendenze Python esterne.
 
 Non ancora implementato:
 
 - mirror/repository APT HomeCloud;
-- pipeline CI di promozione staging → stable;
-- rotazione coordinata della chiave di release;
 - telemetria aggregata e anonima sugli esiti;
-- replica geografica e disaster recovery.
+- replica geografica automatizzata e restore drill automatizzati.
 
 Fino alla realizzazione del mirror APT, il piano HomeCloud autorizza versioni
 esatte ma i `.deb` continuano a provenire dai repository APT firmati già
@@ -207,3 +314,11 @@ configurati sulle appliance.
 PYTHONPATH=services/update-origin/src \
 python3 -m unittest discover -s services/update-origin/tests -v
 ```
+
+La CI installa inoltre Nginx e valida la configurazione renderizzata con un
+certificato effimero tramite `tests/check-nginx.sh`.
+
+## Operazioni e sviluppi futuri
+
+- [Disaster recovery](docs/disaster-recovery.md)
+- [Design del futuro repository APT](docs/apt-repository-design.md)

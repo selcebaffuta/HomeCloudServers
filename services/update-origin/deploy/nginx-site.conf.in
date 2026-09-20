@@ -13,6 +13,9 @@ server {
     root /srv/homecloud-updates;
     autoindex off;
     server_tokens off;
+    disable_symlinks on from=/srv/homecloud-updates;
+    client_max_body_size 1k;
+    etag on;
 
     ssl_certificate __CERTIFICATE__;
     ssl_certificate_key __CERTIFICATE_KEY__;
@@ -25,6 +28,8 @@ server {
     add_header Strict-Transport-Security "max-age=31536000" always;
 
     location = /healthz {
+        limit_except GET HEAD { deny all; }
+        max_ranges 0;
         default_type text/plain;
         try_files /healthz =503;
         add_header Cache-Control "no-store" always;
@@ -34,8 +39,13 @@ server {
         add_header Strict-Transport-Security "max-age=31536000" always;
     }
 
-    location ~ "^/v1/[a-z0-9-]+/[a-z0-9._-]+\.json(?:\.sig)?$" {
+    location ~ "/\." {
+        deny all;
+    }
+
+    location ~ "^/v1/[a-z0-9][a-z0-9-]*/(?:trust|debian-(?:12|13)-arm64)\.json(?:\.sig)?$" {
         limit_except GET HEAD { deny all; }
+        max_ranges 0;
         default_type application/octet-stream;
         try_files $uri =404;
         add_header Cache-Control "no-store" always;
@@ -47,6 +57,7 @@ server {
 
     location ~ "^/releases/[0-9a-f]{64}\.tar\.gz$" {
         limit_except GET HEAD { deny all; }
+        max_ranges 1;
         default_type application/gzip;
         try_files $uri =404;
         add_header Cache-Control "public, max-age=31536000, immutable" always;
@@ -60,7 +71,4 @@ server {
         return 404;
     }
 
-    location ~ /\. {
-        deny all;
-    }
 }

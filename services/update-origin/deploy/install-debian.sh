@@ -55,12 +55,16 @@ done
     echo "Sono supportati soltanto Debian 12 e Debian 13." >&2
     exit 1
 }
-for command in nginx openssl python3 systemctl; do
+for command in nginx openssl python3 systemctl sha256sum awk; do
     command -v "$command" >/dev/null 2>&1 || {
         echo "Dipendenza mancante: $command" >&2
         exit 1
     }
 done
+openssl pkey -pubin -in "$public_key" -noout >/dev/null 2>&1 || {
+    echo "Chiave pubblica di release non valida." >&2
+    exit 1
+}
 
 repository=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 install -d -o root -g root -m 0755 /usr/lib/homecloud-update-origin/homecloud_update_origin
@@ -71,8 +75,25 @@ done
 install --remove-destination -D -o root -g root -m 0755 \
     "$repository/deploy/homecloud-update-origin" \
     /usr/local/sbin/homecloud-update-origin
-install --remove-destination -D -o root -g root -m 0644 "$public_key" \
-    /etc/homecloud-update-origin/release-signing-public.pem
+release_key_directory=/etc/homecloud-update-origin/release-keys.d
+install -d -o root -g root -m 0755 "$release_key_directory"
+release_key_id=$(sha256sum "$public_key" | awk '{print $1}')
+case "$release_key_id" in
+    *[!0-9a-f]*|'') echo "Digest della chiave release non valido." >&2; exit 1 ;;
+esac
+[ "${#release_key_id}" -eq 64 ] || { echo "Digest della chiave release non valido." >&2; exit 1; }
+install --remove-destination -o root -g root -m 0644 "$public_key" \
+    "$release_key_directory/$release_key_id.pem"
+legacy_release_key=/etc/homecloud-update-origin/release-signing-public.pem
+if [ -e "$legacy_release_key" ] || [ -L "$legacy_release_key" ]; then
+    [ -f "$legacy_release_key" ] && [ ! -L "$legacy_release_key" ] || {
+        echo "Chiave release legacy non sicura." >&2
+        exit 1
+    }
+else
+    install --remove-destination -D -o root -g root -m 0644 "$public_key" \
+        "$legacy_release_key"
+fi
 [ ! -L /srv/homecloud-updates ] || {
     echo "La directory di pubblicazione non può essere un link simbolico." >&2
     exit 1
@@ -99,9 +120,13 @@ nginx_stage=$(mktemp /etc/nginx/sites-available/.homecloud-updates.XXXXXX)
 nginx_backup=$(mktemp -d /etc/nginx/.homecloud-updates-backup.XXXXXX)
 config_backed_up=false
 enabled_backed_up=false
+new_config_installed=false
 
 rollback_nginx() {
-    rm -f "$nginx_stage" "$nginx_config" "$nginx_enabled"
+    rm -f "$nginx_stage"
+    if [ "$new_config_installed" = true ]; then
+        rm -f "$nginx_config" "$nginx_enabled"
+    fi
     if [ "$config_backed_up" = true ]; then
         mv "$nginx_backup/config" "$nginx_config"
         config_backed_up=false
@@ -111,6 +136,11 @@ rollback_nginx() {
         enabled_backed_up=false
     fi
     rmdir "$nginx_backup" 2>/dev/null || true
+    if [ "$new_config_installed" = true ] && nginx -t >/dev/null 2>&1; then
+        if systemctl is-active --quiet nginx.service; then
+            systemctl reload nginx.service >/dev/null 2>&1 || true
+        fi
+    fi
 }
 
 trap 'rollback_nginx' EXIT
@@ -139,19 +169,23 @@ if [ -e "$nginx_enabled" ] || [ -L "$nginx_enabled" ]; then
     enabled_backed_up=true
 fi
 mv "$nginx_stage" "$nginx_config"
+new_config_installed=true
 ln -s "$nginx_config" "$nginx_enabled"
 
-openssl pkey -pubin -in /etc/homecloud-update-origin/release-signing-public.pem \
-    -noout >/dev/null
+for installed_key in "$release_key_directory"/*.pem; do
+    openssl pkey -pubin -in "$installed_key" -noout >/dev/null
+done
 if ! nginx -t; then
     echo "Configurazione Nginx non valida; ripristino quella precedente." >&2
+    exit 1
+fi
+if ! systemctl enable --now nginx.service || ! systemctl reload nginx.service; then
+    echo "Nginx non è stato avviato o ricaricato; ripristino la configurazione precedente." >&2
     exit 1
 fi
 trap - EXIT HUP INT TERM
 rm -f "$nginx_backup/config" "$nginx_backup/enabled"
 rmdir "$nginx_backup"
-systemctl enable --now nginx.service
-systemctl reload nginx.service
 
 echo "Origine aggiornamenti installata per https://$hostname"
 echo "La chiave privata di release non deve essere copiata su questo server."

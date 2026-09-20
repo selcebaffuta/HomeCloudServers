@@ -34,3 +34,9 @@ jobs:
         run: npm run test:smoke
       - name: Update origin tests
         run: PYTHONPATH=services/update-origin/src python3 -m unittest discover -s services/update-origin/tests -v
+      - name: Install Nginx syntax-test dependency
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes nginx
+      - name: Validate update-origin Nginx configuration
+        run: services/update-origin/tests/check-nginx.sh

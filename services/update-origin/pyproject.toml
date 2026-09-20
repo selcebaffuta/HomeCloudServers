@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "homecloud-update-origin"
+version = "0.1.0"
+description = "Offline-signed static update origin for HomeCloud appliances"
+requires-python = ">=3.11"
+
+[project.scripts]
+homecloud-update-origin = "homecloud_update_origin.cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+packages = ["homecloud_update_origin"]

@@ -1,0 +1,5 @@
+#!/bin/sh
+set -eu
+
+export PYTHONPATH=/usr/lib/homecloud-update-origin
+exec /usr/bin/python3 -m homecloud_update_origin.cli "$@"

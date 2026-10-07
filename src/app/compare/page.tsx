@@ -45,7 +45,8 @@ export default function ComparePage() {
               <tr>
                 <th scope="col">Capability</th>
                 {products.map((product) => (
-                  <th key={product.id} scope="col">
+                  <th key={product.id} scope="col" data-family={product.family}>
+                    <i className={styles.modelMarker} aria-hidden="true" />
                     <span>{product.eyebrow}</span>
                     <strong>{product.shortName}</strong>
                     <Link href={getProductHref(product)}>Explore <span aria-hidden="true">↗</span></Link>
@@ -66,7 +67,7 @@ export default function ComparePage() {
 
         <div className={styles.mobileComparison}>
           {products.map((product) => (
-            <article key={product.id}>
+            <article key={product.id} data-family={product.family}>
               <div className={styles.mobileProductHeader}>
                 <div><span>{product.eyebrow}</span><h2>{product.displayName}</h2></div>
                 <Link href={getProductHref(product)} aria-label={`Explore ${product.displayName}`}>↗</Link>
@@ -82,8 +83,8 @@ export default function ComparePage() {
       </section>
 
       <section className={styles.note}>
-        <div><p className="eyebrow">Specifications with restraint</p><h2>We’ll publish the numbers when they are real.</h2></div>
-        <div><p>Storage configurations, memory, processor specifications, availability and pricing are intentionally not listed yet.</p><p>Final combinations may vary by configuration. No purchase is available in this milestone.</p></div>
+        <div><p className="eyebrow">Final configurations</p><h2>Details will follow closer to availability.</h2></div>
+        <div><p>Storage, memory and processor configurations will be published when the product options are final.</p><p>Options may vary by model and configuration. Pricing and availability have not been announced.</p></div>
       </section>
 
       <section className={styles.closing}>

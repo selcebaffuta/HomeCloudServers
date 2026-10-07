@@ -1,35 +1,17 @@
-import Link from "next/link";
-
 import { brand } from "@/config/brand";
 import { appCategories, setupSteps } from "@/data/features";
 import { getProductHref, products } from "@/data/products";
-import { ProductVisual } from "@/components/products/ProductVisual";
 import { ArrowLink } from "@/components/ui/ArrowLink";
+import { HomeHero } from "./HomeHero";
+import { IntegratedDisplayShowcase } from "./IntegratedDisplayShowcase";
+import { ProductFamilySection } from "./ProductFamilySection";
 
 import styles from "./HomePage.module.css";
 
 export function HomePage() {
-  const featuredProduct = products[2];
-
   return (
     <>
-      <section className={styles.hero}>
-        <div className={styles.heroCopy}>
-          <p className="eyebrow">Your cloud. At home.</p>
-          <h1>Your digital life,<br />where it belongs.</h1>
-          <p className={styles.lead}>
-            A personal cloud designed for photos, files, backups and apps—running on dedicated hardware in your home.
-          </p>
-          <div className={styles.actions}>
-            <ArrowLink href="#products">Explore {brand.name}</ArrowLink>
-            <ArrowLink href="/compare" variant="secondary">Compare models</ArrowLink>
-          </div>
-        </div>
-        <div className={styles.heroVisual}>
-          <ProductVisual product={featuredProduct} />
-          <p className={styles.conceptNote}>Conceptual product visual · final industrial design may change</p>
-        </div>
-      </section>
+      <HomeHero />
 
       <section className={`${styles.section} ${styles.ownership}`} id="why">
         <div className={styles.sectionHeading}>
@@ -52,7 +34,7 @@ export function HomePage() {
         <div className={styles.systemLine} aria-label={`${brand.name} combines hardware, operating software, apps, remote access and backup`}>
           {[
             ["01", "Hardware", "A dedicated home device"],
-            ["02", `${brand.shortName} OS`, "One clear Web UI"],
+            ["02", `${brand.name} interface`, "One clear Web UI"],
             ["03", "Apps", "Tools for everyday needs"],
             ["04", "Remote", "Secure access away from home"],
             ["05", "Backup", "Protection you can understand"],
@@ -62,51 +44,9 @@ export function HomePage() {
         </div>
       </section>
 
-      <section className={`${styles.section} ${styles.products}`} id="products">
-        <div className={styles.sectionHeading}>
-          <p className="eyebrow">Three ways to make it yours</p>
-          <h2>Meet the family.</h2>
-          <p>Start with the same core cloud experience. Choose how present you want the hardware to feel.</p>
-        </div>
-        <div className={styles.productGrid}>
-          {products.map((product) => (
-            <article className={styles.productCard} key={product.id}>
-              <ProductVisual product={product} size="compact" />
-              <div className={styles.productCopy}>
-                <p className="eyebrow">{product.eyebrow}</p>
-                <h3>{product.displayName}</h3>
-                <p>{product.description}</p>
-                <ul>{product.features.map((feature) => <li key={feature}>{feature}</li>)}</ul>
-                <Link href={getProductHref(product)}>Explore {product.shortName} <span aria-hidden="true">↗</span></Link>
-              </div>
-            </article>
-          ))}
-        </div>
-        <div className={styles.centerAction}><ArrowLink href="/compare" variant="secondary">Compare models</ArrowLink></div>
-      </section>
+      <ProductFamilySection />
 
-      <section className={`${styles.section} ${styles.displaySection}`}>
-        <div className={styles.displayIntro}>
-          <p className="eyebrow">Integrated display</p>
-          <h2>You shouldn’t need another device to know what your server is doing.</h2>
-          <p>Plus and Pro bring the essential state of your cloud onto the device itself—calmly, clearly and only when useful.</p>
-        </div>
-        <div className={styles.displayDemo}>
-          <div className={styles.oledPanel}>
-            <div className={styles.oledHeader}><span><i />All systems normal</span><small>10:24</small></div>
-            <div className={styles.oledMain}>
-              <div className={styles.oledStorage}><span>Storage</span><strong>1.7 TB</strong><small>of available capacity in use</small><i><b /></i></div>
-              <div className={styles.oledStatus}><span>Network</span><strong>Connected</strong><small>Remote access ready</small></div>
-              <div className={styles.oledApps}><span>Apps</span><div><i>PH</i><i>FS</i><i>ME</i></div><strong>6 active</strong></div>
-              <div className={styles.oledStatus}><span>Backup</span><strong>Up to date</strong><small>Last checked today</small></div>
-            </div>
-          </div>
-          <div className={styles.proControls}>
-            <div><span>Control Bar</span><p>Contextual touch controls that complement the main display.</p></div>
-            <div><span>Rotary control</span><p>A physical control with haptic feedback for deliberate local interaction.</p></div>
-          </div>
-        </div>
-      </section>
+      <IntegratedDisplayShowcase />
 
       <section className={`${styles.section} ${styles.apps}`} id="apps">
         <div className={styles.appsHeading}>
@@ -133,7 +73,11 @@ export function HomePage() {
       </section>
 
       <section className={`${styles.section} ${styles.remote}`}>
-        <div className={styles.remoteSignal} aria-hidden="true"><span /><span /><span /><i /></div>
+        <div className={styles.remotePath} aria-hidden="true">
+          <div className={styles.pathNode}><span>At home</span><strong>{brand.name}</strong><i /></div>
+          <div className={styles.pathLine}><span>Secure remote access</span></div>
+          <div className={styles.pathNode}><span>Away</span><strong>Your devices</strong><i /></div>
+        </div>
         <div className={styles.remoteCopy}>
           <p className="eyebrow">Secure remote access</p>
           <h2>Home, even when you’re not.</h2>

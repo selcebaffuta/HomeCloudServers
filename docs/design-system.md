@@ -2,11 +2,11 @@
 
 ## Direction
 
-The visual system extends the existing device UI into a public, editorial hardware experience: calm canvas, clean white or charcoal surfaces, near-black type, restrained cool-blue accent and status colors used only for status. It avoids dashboard density, generic hosting imagery and decorative gradients.
+The visual system extends the existing device UI into a public, editorial hardware experience: calm canvas, clean white or charcoal surfaces, near-black type, restrained cool-blue accent and status colors used only for status. Hardware and software visuals share status pills, compact cards, storage progress and app tiles without turning the marketing site into a dashboard.
 
 ## Typography
 
-The stack is entirely local/system: `Inter` when already installed, then system UI fallbacks. No remote font request is required. Headlines use a compact, fluid scale with negative tracking; body copy remains at readable sizes and constrained line lengths. Labels and specifications use small uppercase eyebrow text only where hierarchy benefits.
+The stack is entirely local/system: `Inter` when already installed, then system UI fallbacks. No remote font request is required. Only page heroes use the largest display scale. Subsequent sections alternate medium editorial headings, visual-first compositions and quieter copy blocks so the page has a deliberate rhythm. Body copy remains at readable sizes and constrained line lengths; labels and specifications use small uppercase eyebrow text only where hierarchy benefits.
 
 ## Color
 
@@ -25,8 +25,9 @@ Small controls use 12px-equivalent radii. Content panels use 20px or a fluid lar
 - Header: sticky, compact, lightly blurred and keyboard accessible.
 - Mobile navigation: focused client island with `aria-expanded`, Escape handling, close-on-navigation behavior and a 44px touch target.
 - CTA: pill-shaped primary, outlined secondary and text variants.
-- Product visual: shared abstract hardware mockup with Base, Plus and Pro variants.
-- Comparison: semantic table on desktop and labelled definition-list panels on mobile.
+- Product visual: shared conceptual chassis language with an intentionally simple Base face, integrated Plus display, and recessed Pro Control Bar plus physical rotary control.
+- HomeCloud interface preview: a dark, restrained software visual built from the product UI's status, storage, network, backup and app language.
+- Comparison: semantic table with sticky model headings on desktop and labelled definition-list panels on mobile.
 - App category: simple category monogram without third-party marks.
 
 ## Motion

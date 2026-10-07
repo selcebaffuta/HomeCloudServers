@@ -40,16 +40,16 @@ export function Footer() {
 
         <nav aria-label="Support links">
           <h2>Support</h2>
-          <span>Documentation <small>Later</small></span>
-          <a href={`mailto:${brand.contact.supportEmail}`}>Contact</a>
-          <span>Shipping <small>Later</small></span>
+          <span>Documentation <small>In preparation</small></span>
+          {brand.contact.supportEmail ? <a href={`mailto:${brand.contact.supportEmail}`}>Contact</a> : <span>Contact <small>In preparation</small></span>}
+          <span>Shipping <small>In preparation</small></span>
         </nav>
 
         <nav aria-label="Legal links">
           <h2>Legal</h2>
-          <span>Privacy <small>Draft later</small></span>
-          <span>Terms <small>Draft later</small></span>
-          <span>Cookies <small>Draft later</small></span>
+          <span>Privacy <small>In preparation</small></span>
+          <span>Terms <small>In preparation</small></span>
+          <span>Cookies <small>In preparation</small></span>
         </nav>
       </div>
       <div className={styles.bottom}>

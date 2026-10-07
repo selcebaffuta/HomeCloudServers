@@ -3,95 +3,139 @@
   width: 100%;
   margin: 0;
   overflow: hidden;
+  border: 1px solid var(--color-line);
   border-radius: var(--radius-large);
   background: var(--visual-stage);
   isolation: isolate;
 }
 
-.hero { min-height: clamp(28rem, 52vw, 46rem); }
-.compact { min-height: 23rem; }
-.stage { position: absolute; inset: 0; display: grid; place-items: center; perspective: 1200px; }
+.hero { min-height: clamp(30rem, 50vw, 45rem); }
+.compact { min-height: clamp(18rem, 28vw, 23rem); }
+.stage { position: absolute; inset: 0; display: grid; place-items: center; perspective: 1400px; }
 
 .stage::before {
   position: absolute;
-  width: 75%;
-  height: 38%;
+  inset: 9% 8%;
   border-radius: 50%;
-  background: radial-gradient(circle, var(--visual-glow) 0%, transparent 68%);
+  background: radial-gradient(circle at 50% 58%, var(--visual-glow) 0%, transparent 64%);
   content: "";
-  filter: blur(15px);
-  transform: translateY(32%);
+  filter: blur(12px);
 }
 
-.shadow { position: absolute; width: 58%; height: 9%; bottom: 14%; border-radius: 50%; background: rgba(0, 0, 0, 0.2); filter: blur(24px); transform: rotate(-2deg); }
+.floor {
+  position: absolute;
+  width: 64%;
+  height: 6.5%;
+  bottom: 14%;
+  border-radius: 50%;
+  background: var(--device-shadow);
+  filter: blur(22px);
+  transform: rotate(-1deg);
+}
+
 .device {
   position: relative;
-  width: min(65%, 34rem);
-  aspect-ratio: 1.28;
+  width: min(69%, 36rem);
+  aspect-ratio: 1.34;
   border: 1px solid var(--device-line);
-  border-radius: clamp(1.6rem, 4vw, 3.2rem);
-  background: var(--device-body);
-  box-shadow: inset 0 1px rgba(255,255,255,0.8), inset 0 -1px rgba(0,0,0,0.08), 0 2.5rem 5rem rgba(18, 21, 30, 0.18);
-  transform: rotateY(-8deg) rotateX(4deg) rotateZ(-1deg);
+  border-radius: clamp(1.55rem, 3.6vw, 2.9rem);
+  background: linear-gradient(145deg, var(--device-body-highlight), var(--device-body) 48%, var(--device-body-shade));
+  box-shadow: inset 0 1px var(--device-highlight), inset 0 -1px rgba(0,0,0,0.12), 0 2.4rem 4.8rem var(--device-shadow);
+  transform: rotateY(-7deg) rotateX(3.5deg) rotateZ(-0.6deg);
   transform-style: preserve-3d;
 }
 
-.topEdge { position: absolute; inset: 0 5% auto; height: 2px; border-radius: 50%; background: rgba(255,255,255,0.68); }
-.screen {
-  position: absolute;
-  inset: 11% 9% 21%;
-  overflow: hidden;
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: clamp(1rem, 2.5vw, 1.65rem);
-  background: #080a0d;
-  color: #f5f7fa;
-  box-shadow: inset 0 0 0 1px rgba(0,0,0,0.42), 0 0 0 5px rgba(0,0,0,0.1);
-}
-.screenUi { height: 100%; padding: clamp(0.8rem, 2vw, 1.4rem); display: flex; flex-direction: column; }
-.screenTop { display: flex; align-items: center; gap: 0.45rem; color: #9299a5; font-size: clamp(0.38rem, 0.8vw, 0.67rem); }
-.screenTop b { color: #dfe2e7; font-weight: 650; }
-.statusDot { width: 0.45rem; height: 0.45rem; border-radius: 50%; background: #60c79f; box-shadow: 0 0 0 0.2rem rgba(96,199,159,0.1); }
-.screenTime { margin-left: auto; }
-.screenGrid { flex: 1; display: grid; grid-template-columns: 1.25fr 0.9fr; grid-template-rows: 1fr auto; gap: clamp(0.35rem, 1vw, 0.7rem); margin-top: 8%; }
-.storageCard, .appsCard, .miniStatus { border: 1px solid rgba(255,255,255,0.08); border-radius: clamp(0.5rem, 1.2vw, 0.9rem); background: #12161c; }
-.storageCard, .appsCard { padding: clamp(0.55rem, 1.4vw, 1rem); display: grid; align-content: start; }
-.storageCard > span, .appsCard > span { color: #8e96a2; font-size: clamp(0.36rem, 0.7vw, 0.6rem); }
-.storageCard strong { margin-top: auto; font-size: clamp(0.8rem, 2vw, 1.4rem); letter-spacing: -0.05em; }
-.storageCard > i { display: block; height: 0.3rem; margin-top: 0.35rem; overflow: hidden; border-radius: 1rem; background: #252b35; }
-.storageCard > i span { display: block; width: 42%; height: 100%; border-radius: inherit; background: #5c85f4; }
-.appsCard strong { margin-top: 0.25rem; font-size: clamp(0.55rem, 1vw, 0.82rem); }
-.appsCard div { display: flex; gap: 0.25rem; margin-top: auto; }
-.appsCard div i { width: 0.7rem; height: 0.7rem; border-radius: 0.24rem; background: #293140; }
-.appsCard div i:first-child { background: #315dd1; }
-.miniStatus { display: flex; min-height: 1.6rem; align-items: center; gap: 0.35rem; padding: 0 0.6rem; color: #a8afb9; font-size: clamp(0.32rem, 0.65vw, 0.52rem); }
-.miniStatus span { width: 0.3rem; height: 0.3rem; border-radius: 50%; background: #60c79f; }
-.frontMark { position: absolute; inset: 50% auto auto 50%; width: 3.5rem; height: 3.5rem; transform: translate(-50%, -50%); }
-.frontMark span, .frontMark i { position: absolute; border-radius: 50%; background: var(--device-mark); }
-.frontMark span:first-child { width: 2.15rem; height: 2.15rem; inset: 0 auto auto 0; }
-.frontMark span:nth-child(2) { width: 1.9rem; height: 1.9rem; inset: auto 0 0 auto; opacity: 0.66; }
-.frontMark i { width: 0.9rem; height: 0.9rem; inset: 1.25rem auto auto 1.45rem; background: var(--color-accent); }
-.controlBar { position: absolute; left: 15%; right: 25%; bottom: 8.5%; height: 7.5%; padding: 0 7%; display: flex; align-items: center; justify-content: space-between; border: 1px solid rgba(255,255,255,0.08); border-radius: 0.65rem; background: #0a0c0f; }
-.controlBar span { width: 8%; aspect-ratio: 1; border-radius: 50%; background: #69717d; }
-.controlBar .controlActive { width: 22%; aspect-ratio: 3; border-radius: 1rem; background: #4776f2; }
-.rotary { position: absolute; right: 9%; bottom: 5.4%; width: 12%; aspect-ratio: 1; padding: 2.2%; border: 1px solid rgba(0,0,0,0.3); border-radius: 50%; background: #333940; box-shadow: inset 0 0 0 2px rgba(255,255,255,0.12), 0 0.35rem 0.7rem rgba(0,0,0,0.28); }
-.rotary i { display: block; width: 2px; height: 22%; margin: 8% auto 0; border-radius: 2px; background: #b7bdc5; }
-.vent { position: absolute; right: 8%; top: 50%; width: 0.25rem; height: 20%; transform: translateY(-50%); border-radius: 2rem; background: var(--device-line); opacity: 0.42; }
-.productLabel { position: absolute; left: 8%; bottom: 7%; color: var(--device-label); font-size: clamp(0.45rem, 1vw, 0.7rem); font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
-.display .device { width: min(72%, 38rem); aspect-ratio: 1.38; background: #dadddf; }
-.control .device { width: min(76%, 41rem); aspect-ratio: 1.55; background: #c9cdd1; }
+.topEdge { position: absolute; inset: 0 6% auto; height: 1px; border-radius: 50%; background: var(--device-highlight); opacity: 0.85; }
+.sideEdge { position: absolute; z-index: -1; top: 4%; right: -3.4%; width: 7%; height: 91%; border: 1px solid var(--device-line); border-left: 0; border-radius: 0 2rem 2rem 0; background: var(--device-side); transform: translateZ(-1rem) skewY(-3deg); }
+.feet { position: absolute; inset: auto 11% -1.2% 11%; display: flex; justify-content: space-between; }
+.feet i { width: 15%; height: 0.35rem; border-radius: 0 0 0.3rem 0.3rem; background: var(--device-foot); }
 
-@media (max-width: 620px) {
+.screenBezel {
+  position: absolute;
+  inset: 8.5% 7.5% 20%;
+  padding: 1.4%;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: clamp(1.05rem, 2.35vw, 1.65rem);
+  background: #252a30;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,0.52), 0 0.45rem 1.25rem rgba(0,0,0,0.2);
+}
+
+.screen { height: 100%; overflow: hidden; border-radius: calc(clamp(1.05rem, 2.35vw, 1.65rem) - 0.3rem); background: #060708; color: #f4f6f8; box-shadow: inset 0 0 1.6rem rgba(0,0,0,0.55); }
+.screenUi { height: 100%; padding: clamp(0.65rem, 1.55vw, 1.15rem); display: flex; flex-direction: column; }
+.screenTop { display: flex; align-items: center; gap: 0.5rem; color: #8b929d; font-size: clamp(0.34rem, 0.68vw, 0.59rem); }
+.screenBrand { color: #eef1f4; font-weight: 720; letter-spacing: -0.02em; }
+.healthPill { display: inline-flex; align-items: center; gap: 0.3rem; margin-left: auto; padding: 0.28rem 0.45rem; border-radius: 2rem; background: rgba(36,132,95,0.14); color: #82d8b8; font-weight: 650; }
+.healthPill i, .statusStack span i { width: 0.3rem; height: 0.3rem; border-radius: 50%; background: #5bc59c; }
+.screenTop time { font-variant-numeric: tabular-nums; font-weight: 650; }
+.screenContent { flex: 1; min-height: 0; display: grid; grid-template-columns: 1.15fr 0.85fr; gap: clamp(0.35rem, 0.75vw, 0.6rem); margin-top: 6%; }
+.storageCard, .statusStack > div, .appStrip { border: 1px solid rgba(255,255,255,0.075); background: #111419; }
+.storageCard { padding: clamp(0.55rem, 1.25vw, 0.9rem); border-radius: clamp(0.55rem, 1.1vw, 0.85rem); display: flex; flex-direction: column; }
+.storageCard > span, .appStrip > span { color: #8b929d; font-size: clamp(0.32rem, 0.61vw, 0.52rem); }
+.storageCard strong { margin-top: auto; font-size: clamp(0.9rem, 2vw, 1.55rem); line-height: 1; letter-spacing: -0.055em; }
+.storageCard > i { display: block; height: 0.28rem; margin-top: 0.45rem; overflow: hidden; border-radius: 1rem; background: #252a32; }
+.storageCard > i span { display: block; width: 42%; height: 100%; border-radius: inherit; background: #5c85f4; }
+.storageCard small { margin-top: 0.3rem; color: #737b87; font-size: clamp(0.26rem, 0.5vw, 0.42rem); }
+.statusStack { display: grid; gap: clamp(0.3rem, 0.65vw, 0.5rem); }
+.statusStack > div { min-height: 0; padding: clamp(0.45rem, 1vw, 0.7rem); border-radius: clamp(0.48rem, 1vw, 0.75rem); display: flex; flex-direction: column; justify-content: space-between; }
+.statusStack span { display: flex; align-items: center; gap: 0.28rem; color: #8b929d; font-size: clamp(0.29rem, 0.55vw, 0.46rem); }
+.statusStack strong { color: #e8ebef; font-size: clamp(0.42rem, 0.78vw, 0.66rem); }
+.appStrip { min-height: 20%; margin-top: clamp(0.35rem, 0.75vw, 0.6rem); padding: 0 clamp(0.55rem, 1.2vw, 0.9rem); border-radius: clamp(0.48rem, 1vw, 0.75rem); display: flex; align-items: center; gap: 0.55rem; }
+.appStrip div { display: flex; gap: 0.25rem; }
+.appStrip div i { display: grid; width: clamp(0.75rem, 1.5vw, 1.15rem); aspect-ratio: 1; place-items: center; border-radius: 0.28rem; background: #202733; color: #88a4ef; font-size: clamp(0.22rem, 0.42vw, 0.34rem); font-style: normal; font-weight: 750; }
+.appStrip strong { margin-left: auto; color: #c9ced5; font-size: clamp(0.32rem, 0.61vw, 0.5rem); }
+
+.baseFace { position: absolute; inset: 8.5% 7.5% 16%; border: 1px solid var(--device-panel-line); border-radius: clamp(1.05rem, 2.35vw, 1.65rem); background: linear-gradient(145deg, var(--device-panel), transparent 75%); }
+.baseIdentity { position: absolute; left: 9%; top: 11%; display: flex; align-items: center; gap: clamp(0.5rem, 1vw, 0.8rem); }
+.baseIdentity > span:last-child { display: grid; }
+.baseIdentity strong { color: var(--device-ink); font-size: clamp(0.52rem, 1.1vw, 0.82rem); letter-spacing: -0.025em; }
+.baseIdentity small { color: var(--device-label); font-size: clamp(0.3rem, 0.6vw, 0.48rem); }
+.brandGlyph, .familyMark { position: relative; display: block; width: clamp(1.4rem, 3vw, 2.2rem); aspect-ratio: 1; border-radius: 28%; background: var(--device-ink); }
+.brandGlyph i, .brandGlyph b, .familyMark i, .familyMark b { position: absolute; border-radius: 50%; background: var(--device-body); content: ""; }
+.brandGlyph i:first-child, .familyMark i:first-child { width: 42%; height: 42%; left: 20%; top: 18%; }
+.brandGlyph i:nth-child(2), .familyMark i:nth-child(2) { width: 38%; height: 38%; right: 16%; bottom: 16%; opacity: 0.7; }
+.brandGlyph b, .familyMark b { width: 18%; height: 18%; left: 47%; top: 45%; background: var(--color-accent); }
+.baseStatus { position: absolute; right: 9%; top: 12%; display: inline-flex; align-items: center; gap: 0.35rem; color: var(--device-label); font-size: clamp(0.3rem, 0.62vw, 0.48rem); font-weight: 650; }
+.baseStatus i { width: 0.42rem; height: 0.42rem; border-radius: 50%; background: var(--color-success); box-shadow: 0 0 0 0.25rem color-mix(in srgb, var(--color-success) 11%, transparent); }
+
+.control .screenBezel { bottom: 29%; }
+.controlDeck { position: absolute; left: 7.5%; right: 7.5%; bottom: 6.5%; height: 17%; padding: 1.1%; border: 1px solid var(--device-panel-line); border-radius: clamp(0.7rem, 1.35vw, 1rem); background: var(--device-recess); box-shadow: inset 0 0.18rem 0.6rem rgba(0,0,0,0.28), 0 1px var(--device-highlight); display: grid; grid-template-columns: 1fr auto; gap: 2.2%; }
+.controlBar { min-width: 0; padding: 0 4%; border: 1px solid rgba(255,255,255,0.07); border-radius: calc(clamp(0.7rem, 1.35vw, 1rem) - 0.2rem); background: #07090b; display: grid; grid-template-columns: 1.25fr 1fr 1fr; align-items: center; gap: 3%; }
+.controlBar > span { min-width: 0; height: 58%; padding-inline: 7%; border-radius: 0.45rem; display: flex; align-items: center; justify-content: center; gap: 0.25rem; color: #7f8792; font-size: clamp(0.24rem, 0.46vw, 0.38rem); }
+.controlBar > span i { width: 0.28rem; height: 0.28rem; border-radius: 50%; background: currentColor; }
+.controlBar .controlActive { background: rgba(71,118,242,0.2); color: #9cb3f5; }
+.rotaryHousing { height: 100%; aspect-ratio: 1.12; padding: 10%; border-radius: 0.65rem; background: #111419; display: grid; place-items: center; }
+.rotary { position: relative; width: 82%; aspect-ratio: 1; padding: 13%; border: 1px solid rgba(0,0,0,0.5); border-radius: 50%; background: repeating-conic-gradient(#525861 0 2deg, #2b3036 2deg 8deg); box-shadow: inset 0 0 0 0.24rem #343a41, inset 0 0 0 0.3rem rgba(255,255,255,0.09), 0 0.22rem 0.4rem rgba(0,0,0,0.35); }
+.rotary::after { position: absolute; inset: 18%; border-radius: 50%; background: linear-gradient(145deg, #4b525b, #272c32); content: ""; }
+.rotary i { position: relative; z-index: 1; display: block; width: 2px; height: 20%; margin: 10% auto 0; border-radius: 2px; background: #c5cad0; }
+
+.familyMark { position: absolute; left: 8%; bottom: 6%; width: clamp(1rem, 2.1vw, 1.55rem); }
+.display .familyMark, .control .familyMark { display: none; }
+.vents { position: absolute; right: 7%; bottom: 7%; width: 20%; height: 0.28rem; border-radius: 1rem; background: repeating-linear-gradient(90deg, var(--device-vent) 0 2px, transparent 2px 6px); opacity: 0.55; }
+.control .vents { display: none; }
+.productLabel { position: absolute; left: 8%; bottom: 2.2%; color: var(--device-label); font-size: clamp(0.35rem, 0.7vw, 0.54rem); font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+.headless .productLabel { left: 14%; bottom: 6.6%; }
+.display .device, .control .device { width: min(75%, 40rem); aspect-ratio: 1.4; }
+.control .device { aspect-ratio: 1.5; }
+
+@media (max-width: 700px) {
   .hero { min-height: 27rem; }
-  .compact { min-height: 19rem; }
-  .device { width: 78%; }
-  .display .device { width: 86%; }
-  .control .device { width: 91%; }
-  .shadow { width: 72%; bottom: 17%; }
+  .compact { min-height: 18rem; }
+  .device { width: 80%; }
+  .display .device, .control .device { width: 88%; }
+  .floor { width: 74%; bottom: 17%; }
+}
+
+@media (max-width: 420px) {
+  .hero { min-height: 23rem; }
+  .compact { min-height: 16.5rem; }
+  .screenTop time { display: none; }
+  .screenContent { margin-top: 4%; }
+  .healthPill { margin-left: auto; }
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .device { animation: reveal-device 850ms var(--ease-out) both; }
+  .device { animation: reveal-device 760ms var(--ease-out) both; }
   @keyframes reveal-device {
-    from { opacity: 0; transform: translateY(2rem) rotateY(-8deg) rotateX(4deg) rotateZ(-1deg); }
+    from { opacity: 0; transform: translateY(1.5rem) rotateY(-7deg) rotateX(3.5deg) rotateZ(-0.6deg); }
   }
 }

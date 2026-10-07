@@ -18,19 +18,19 @@ Future commerce routes are reserved conceptually, not implemented: `/store`, `/c
 
 ## Component architecture
 
-`components/layout` owns site chrome. `components/marketing` composes the landing experience. `components/products` owns product-specific presentation, including the replaceable `ProductVisual`. `components/ui` contains the very small set of reusable primitives.
+`components/layout` owns site chrome. `components/marketing` composes the landing experience; its three visually complex, autonomous sections (`HomeHero`, `ProductFamilySection` and `IntegratedDisplayShowcase`) are extracted while simpler editorial sections stay together. `components/products` owns product-specific presentation, including the replaceable `ProductVisual` and the shared interface preview. `components/ui` contains the very small set of reusable primitives.
 
 The abstract product mockup is semantic HTML/CSS and is labelled as conceptual. Its API accepts a product record, so approved AVIF/WebP assets can replace its internals without changing callers or content models.
 
 ## Data model
 
-`src/data/products.ts` is the canonical catalog. Product copy, capabilities, routes and comparison values reference the same records. The `Product` interface already reserves optional fields for price, currency, storage, RAM, accessories, availability, SKU, images and shipping class. Those values remain absent until authoritative commercial data exists.
+`src/data/products.ts` is the canonical catalog. Product copy, highlights, model-specific storytelling, capabilities, routes and comparison values reference the same records. The `Product` interface already reserves optional fields for price, currency, storage, RAM, accessories, availability, SKU, images and shipping class. Those values remain absent until authoritative commercial data exists.
 
 `src/data/features.ts` contains comparison projections and shared marketing collections. No page owns a second copy of product facts.
 
 ## Branding
 
-`src/config/brand.ts` owns the provisional product name, short name, descriptor, tagline, metadata defaults, support address, social placeholders and product-family names. Templates interpolate that configuration rather than repeating the brand string. A future rename should primarily touch this file, approved artwork and editorial copy that intentionally discusses the old name.
+`src/config/brand.ts` owns the provisional product name, short name, descriptor, tagline, metadata defaults, optional support address, social placeholders and product-family names. The support address is exposed only when `NEXT_PUBLIC_SUPPORT_EMAIL` is configured, so the public UI never links to a placeholder mailbox. Templates interpolate brand configuration rather than repeating the brand string. A future rename should primarily touch this file, approved artwork and editorial copy that intentionally discusses the old name.
 
 ## SEO
 

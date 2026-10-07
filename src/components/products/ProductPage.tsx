@@ -3,6 +3,7 @@ import Link from "next/link";
 import type { Product } from "@/data/products";
 import { products } from "@/data/products";
 import { ArrowLink } from "@/components/ui/ArrowLink";
+import { HomeCloudInterfacePreview } from "./HomeCloudInterfacePreview";
 import { ProductVisual } from "./ProductVisual";
 
 import styles from "./ProductPage.module.css";
@@ -16,7 +17,7 @@ export function ProductPage({ product }: ProductPageProps) {
 
   return (
     <>
-      <section className={styles.hero}>
+      <section className={styles.hero} data-family={product.family}>
         <div className={styles.heroCopy}>
           <p className="eyebrow">{product.eyebrow}</p>
           <h1>{product.displayName}</h1>
@@ -32,16 +33,16 @@ export function ProductPage({ product }: ProductPageProps) {
         </div>
       </section>
 
-      <section className={styles.positioning}>
-        <p className="eyebrow">Designed for real life</p>
-        <h2>{product.description}</h2>
-        <p>{product.idealFor}.</p>
+      <section className={styles.positioning} data-family={product.family}>
+        <p className="eyebrow">{product.story.eyebrow}</p>
+        <h2>{product.story.headline}</h2>
+        <p>{product.story.description}</p>
       </section>
 
-      <section className={styles.capabilities} id="capabilities">
+      <section className={styles.capabilities} id="capabilities" data-family={product.family}>
         <div className={styles.capabilitiesHeading}>
           <p className="eyebrow">Core capabilities</p>
-          <h2>Everything essential,<br />nothing in the way.</h2>
+          <h2>{product.story.capabilityHeading}</h2>
         </div>
         <ol>
           {product.features.map((feature, index) => (
@@ -50,19 +51,12 @@ export function ProductPage({ product }: ProductPageProps) {
         </ol>
       </section>
 
-      <section className={styles.detailVisual}>
+      <section className={styles.detailVisual} data-family={product.family}>
         <div className={styles.detailPanel}>
-          <p className="eyebrow">One unified interface</p>
-          <h2>The device and the Web UI speak the same language.</h2>
-          <p>System health, storage, apps, network and backup are organized around clear status—not server administration jargon.</p>
-          <div className={styles.miniDashboard} aria-label="Conceptual Web UI status panel">
-            <div className={styles.dashboardHeader}><span><i />All systems normal</span><small>Updated now</small></div>
-            <div className={styles.dashboardBody}>
-              <div><span>Storage</span><strong>42%</strong><i><b /></i></div>
-              <div><span>Network</span><strong>Connected</strong><small>Remote access ready</small></div>
-              <div><span>Backup</span><strong>Up to date</strong><small>No action needed</small></div>
-            </div>
-          </div>
+          <p className="eyebrow">{product.story.interfaceEyebrow}</p>
+          <h2>{product.story.interfaceHeading}</h2>
+          <p>{product.story.interfaceDescription}</p>
+          <HomeCloudInterfacePreview family={product.family} />
         </div>
       </section>
 

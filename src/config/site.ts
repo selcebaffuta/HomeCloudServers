@@ -20,5 +20,5 @@ export const siteNavigation = [
   { label: "Products", href: "/#products" },
   { label: `Why ${brand.name}`, href: "/#why" },
   { label: "Apps", href: "/apps" },
-  { label: "Support", href: `mailto:${brand.contact.supportEmail}` },
+  { label: "Compare", href: "/compare" },
 ] as const;

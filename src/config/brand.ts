@@ -1,6 +1,10 @@
+const configuredSupportEmail = process.env.NEXT_PUBLIC_SUPPORT_EMAIL?.trim() || null;
+const name = "HomeCloud";
+
 export const brand = {
-  name: "HomeCloud",
+  name,
   shortName: "HC",
+  localHostname: "homecloud.local",
   descriptor: "Personal cloud hardware and software",
   tagline: "Your digital life, where it belongs.",
   metadata: {
@@ -9,7 +13,7 @@ export const brand = {
       "A personal cloud for files, photos, backups and apps, built as one approachable home device.",
   },
   contact: {
-    supportEmail: "support@example.com",
+    supportEmail: configuredSupportEmail,
   },
   social: {
     x: "",
@@ -17,9 +21,9 @@ export const brand = {
     github: "",
   },
   productFamilies: {
-    base: "HomeCloud Base",
-    plus: "HomeCloud Plus",
-    pro: "HomeCloud Pro",
+    base: `${name} Base`,
+    plus: `${name} Plus`,
+    pro: `${name} Pro`,
   },
 } as const;
 

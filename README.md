@@ -1,6 +1,6 @@
 # HomeCloudServers
 
-Production-oriented public website for the provisional **HomeCloud** brand. This first milestone presents the Base, Plus and Pro product families, explains the product model and prepares a typed boundary for future commerce without implementing checkout, accounts, payments or device management.
+Production-oriented public website for the provisional **HomeCloud** brand. The current marketing milestone presents the Base, Plus and Pro product families, explains the product model and prepares a typed boundary for future commerce without implementing checkout, accounts, payments or device management.
 
 ## Stack
 
@@ -50,6 +50,7 @@ npm start
 | Variable | Required in production | Purpose |
 | --- | --- | --- |
 | `NEXT_PUBLIC_SITE_URL` | Yes | Canonical HTTPS origin for metadata, sitemap, robots and structured data. Falls back to `http://localhost:3000` in development. |
+| `NEXT_PUBLIC_SUPPORT_EMAIL` | No | Enables the public support email link only when a real monitored address is configured. |
 
 ## Routes
 
@@ -82,7 +83,7 @@ Change provisional brand-level values in `src/config/brand.ts`. The catalog in `
 
 ## Project status
 
-Milestone 1 is a deployable marketing foundation. Product visuals are intentionally abstract, clearly labelled concepts and ready to be replaced by approved AVIF/WebP renders. Pricing, availability, final hardware specifications, purchasing, customer accounts and shipment workflows remain out of scope.
+The deployable marketing foundation now includes the visual-polish milestone. Product visuals form a coherent conceptual hardware family and are ready to be replaced by approved AVIF/WebP renders without changing product data or page structure. Pricing, availability, final hardware specifications, purchasing, customer accounts and shipment workflows remain out of scope.
 
 See:
 

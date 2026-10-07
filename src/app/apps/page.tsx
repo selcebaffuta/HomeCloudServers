@@ -42,16 +42,16 @@ export default function AppsPage() {
         <div className={styles.experienceCopy}>
           <p className="eyebrow">A guided app experience</p>
           <h2>Install with context, not commands.</h2>
-          <p>The future app catalog is designed to show requirements, permissions and device compatibility before installation. Management stays in the local Web UI.</p>
+          <p>The local app catalog is designed to show requirements, permissions and device compatibility before installation. Management stays in the {brand.name} interface.</p>
         </div>
-        <div className={styles.appWindow} aria-label="Conceptual local app catalog interface">
+        <div className={styles.appWindow} aria-hidden="true">
           <div className={styles.windowTop}><span /><span /><span /><small>Local app catalog</small></div>
           <div className={styles.windowBody}>
             <aside><strong>Apps</strong><span>Installed</span><span>Discover</span><span>Updates</span></aside>
             <div className={styles.windowContent}>
               <div className={styles.windowHeading}><div><small>Discover</small><strong>Useful at home</strong></div><i>Search apps</i></div>
               {["Photo library", "File sync", "Monitoring"].map((name, index) => (
-                <div className={styles.appRow} key={name}><span>{appCategories[index].code}</span><div><strong>{name}</strong><small>Ready for your device</small></div><b>View</b></div>
+                <div className={styles.appRow} key={name}><span>{appCategories[index].code}</span><div><strong>{name}</strong><small>Requirements and compatibility</small></div><b>View</b></div>
               ))}
             </div>
           </div>
@@ -59,9 +59,9 @@ export default function AppsPage() {
       </section>
 
       <section className={styles.boundary}>
-        <p className="eyebrow">This milestone</p>
-        <h2>The public site explains apps. Your device manages them.</h2>
-        <p>There is no remote installation from this website, no public account, and no connection to your home device in this version.</p>
+        <p className="eyebrow">Designed around the device</p>
+        <h2>Discover here. Manage at home.</h2>
+        <p>This site introduces the kinds of apps {brand.name} is designed to support. Installation and management stay in the local interface on your device.</p>
       </section>
 
       <section className={styles.closing}>

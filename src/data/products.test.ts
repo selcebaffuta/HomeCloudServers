@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
 import { comparisonRows } from "@/data/features";
+import { brand } from "@/config/brand";
 import { getProduct, products } from "@/data/products";
 
 describe("product catalog", () => {
@@ -13,7 +14,7 @@ describe("product catalog", () => {
   it("resolves known products without inventing commerce data", () => {
     const product = getProduct("pro");
 
-    assert.equal(product?.displayName, "HomeCloud Pro");
+    assert.equal(product?.displayName, brand.productFamilies.pro);
     assert.equal(product?.basePrice, undefined);
     assert.equal(product?.sku, undefined);
     assert.equal(getProduct("unknown"), undefined);
@@ -24,6 +25,14 @@ describe("product catalog", () => {
       for (const product of products) {
         assert.ok(row.value(product).trim().length > 0);
       }
+    }
+  });
+
+  it("provides distinct product storytelling without duplicating page markup", () => {
+    assert.equal(new Set(products.map((product) => product.story.headline)).size, products.length);
+    for (const product of products) {
+      assert.equal(product.highlights.length, 3);
+      assert.ok(product.story.interfaceDescription.length > 0);
     }
   });
 });

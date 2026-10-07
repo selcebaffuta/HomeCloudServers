@@ -1,55 +1,62 @@
-.hero { width: min(calc(100% - 2rem), var(--layout-wide)); margin-inline: auto; padding: clamp(5rem, 10vw, 10rem) 0 var(--section-space); display: grid; grid-template-columns: 1.25fr 0.75fr; align-items: end; gap: clamp(3rem, 7vw, 9rem); }
-.hero h1 { margin: 0; font-size: clamp(4.5rem, 10vw, 10rem); font-weight: 650; line-height: 0.87; letter-spacing: -0.08em; }
+.hero { width: min(calc(100% - 2rem), var(--layout-wide)); margin-inline: auto; padding: clamp(5rem, 10vw, 9rem) 0 var(--section-space); display: grid; grid-template-columns: 1.25fr 0.75fr; align-items: end; gap: clamp(3rem, 7vw, 9rem); }
+.hero h1 { margin: 0; font-size: clamp(4.5rem, 10vw, 9.5rem); font-weight: 650; line-height: 0.87; letter-spacing: -0.08em; }
 .hero > p { max-width: 35rem; margin: 0; padding-bottom: 1rem; color: var(--color-text-muted); font-size: 1.1rem; }
 .catalog { width: 100%; padding: var(--section-space) max(1rem, calc((100% - var(--layout-wide)) / 2)); background: var(--color-surface); }
-.catalogHeading { max-width: 52rem; }
-.catalogHeading h2, .experienceCopy h2, .boundary h2, .closing h2 { margin: 0; font-size: clamp(3rem, 6vw, 6.2rem); line-height: 0.96; letter-spacing: -0.065em; }
-.grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 4rem; }
-.grid article { min-height: 24rem; padding: clamp(1.3rem, 2.5vw, 2rem); border: 1px solid var(--color-line); border-radius: var(--radius-medium); background: var(--color-canvas); display: flex; flex-direction: column; justify-content: space-between; }
+.catalogHeading { max-width: 46rem; }
+.catalogHeading h2 { margin: 0; font-size: clamp(2.8rem, 5vw, 5rem); line-height: 0.98; letter-spacing: -0.06em; }
+.grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 1rem; margin-top: 4rem; }
+.grid article { grid-column: span 4; min-height: 20rem; padding: clamp(1.3rem, 2.5vw, 2rem); border: 1px solid var(--color-line); border-radius: var(--radius-medium); background: var(--color-canvas); display: flex; flex-direction: column; justify-content: space-between; }
+.grid article:nth-child(1), .grid article:nth-child(5) { grid-column: span 5; }
+.grid article:nth-child(2), .grid article:nth-child(6) { grid-column: span 7; }
 .categoryTop { display: flex; justify-content: space-between; align-items: flex-start; }
 .categoryTop > span { display: grid; width: 3.3rem; height: 3.3rem; place-items: center; border-radius: 1rem; background: color-mix(in srgb, var(--color-accent) 10%, var(--color-surface)); color: var(--color-accent); font-size: 0.75rem; font-weight: 760; }
 .categoryTop small { color: var(--color-text-faint); }
-.grid h3 { margin: 0; font-size: 1.75rem; letter-spacing: -0.04em; }
-.grid p { max-width: 20rem; margin: 0.5rem 0 0; color: var(--color-text-muted); }
+.grid h3 { margin: 0; font-size: 1.7rem; letter-spacing: -0.04em; }
+.grid p { max-width: 22rem; margin: 0.5rem 0 0; color: var(--color-text-muted); }
 .disclaimer { margin: 1.5rem 0 0; color: var(--color-text-faint); font-size: 0.7rem; }
 .experience { width: min(calc(100% - 2rem), var(--layout-wide)); margin-inline: auto; padding: var(--section-space) 0; display: grid; grid-template-columns: 0.72fr 1.28fr; align-items: center; gap: clamp(3rem, 7vw, 9rem); }
+.experienceCopy h2, .boundary h2, .closing h2 { margin: 0; line-height: 0.98; letter-spacing: -0.06em; }
+.experienceCopy h2 { font-size: clamp(2.8rem, 4.8vw, 4.8rem); }
 .experienceCopy > p:last-child { max-width: 34rem; color: var(--color-text-muted); }
 .appWindow { overflow: hidden; border: 1px solid var(--color-line-strong); border-radius: var(--radius-medium); background: var(--color-surface); box-shadow: var(--shadow-medium); }
 .windowTop { min-height: 3.3rem; padding: 0 1rem; border-bottom: 1px solid var(--color-line); display: flex; align-items: center; gap: 0.4rem; }
 .windowTop > span { width: 0.55rem; height: 0.55rem; border-radius: 50%; background: var(--color-surface-muted); }
 .windowTop small { margin-left: auto; color: var(--color-text-faint); }
-.windowBody { min-height: 30rem; display: grid; grid-template-columns: 9rem 1fr; }
+.windowBody { min-height: 29rem; display: grid; grid-template-columns: 9rem 1fr; }
 .windowBody aside { padding: 1.5rem 1rem; border-right: 1px solid var(--color-line); display: flex; flex-direction: column; gap: 1rem; color: var(--color-text-muted); font-size: 0.72rem; }
 .windowBody aside strong { margin-bottom: 1.5rem; color: var(--color-ink); font-size: 1rem; }
+.windowBody aside span:nth-child(3) { color: var(--color-ink); font-weight: 650; }
 .windowContent { padding: clamp(1rem, 3vw, 2.2rem); }
 .windowHeading { display: flex; align-items: end; justify-content: space-between; gap: 1rem; margin-bottom: 2rem; }
 .windowHeading div { display: grid; }
 .windowHeading small { color: var(--color-text-muted); }
 .windowHeading strong { font-size: 1.6rem; letter-spacing: -0.04em; }
 .windowHeading i { padding: 0.55rem 0.8rem; border: 1px solid var(--color-line); border-radius: 2rem; color: var(--color-text-faint); font-size: 0.62rem; font-style: normal; }
-.appRow { min-height: 5.8rem; border-top: 1px solid var(--color-line); display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 0.8rem; }
+.appRow { min-height: 5.8rem; border-top: 1px solid var(--color-line); display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 0.8rem; }
 .appRow > span { display: grid; width: 2.5rem; height: 2.5rem; place-items: center; border-radius: 0.7rem; background: color-mix(in srgb, var(--color-accent) 10%, var(--color-surface)); color: var(--color-accent); font-size: 0.62rem; font-weight: 750; }
-.appRow div { display: grid; }
-.appRow div small { color: var(--color-text-muted); font-size: 0.67rem; }
+.appRow div { min-width: 0; display: grid; }
+.appRow div small { overflow: hidden; color: var(--color-text-muted); font-size: 0.67rem; text-overflow: ellipsis; white-space: nowrap; }
 .appRow > b { color: var(--color-accent); font-size: 0.7rem; }
-.boundary { width: min(calc(100% - 2rem), var(--layout-content)); margin-inline: auto; padding: var(--section-space) 0; text-align: center; }
-.boundary h2 { max-width: 16ch; margin-inline: auto; }
-.boundary > p:last-child { max-width: 45rem; margin: 1.5rem auto 0; color: var(--color-text-muted); }
-.closing { width: min(calc(100% - 2rem), var(--layout-wide)); min-height: 40rem; margin: 0 auto var(--section-space); padding: clamp(2rem, 7vw, 7rem); border-radius: var(--radius-large); background: var(--color-surface); display: flex; flex-direction: column; align-items: flex-start; justify-content: center; }
-.closing h2 { max-width: 15ch; }
+.boundary { width: min(calc(100% - 2rem), var(--layout-content)); margin-inline: auto; padding: var(--section-space-compact) 0 var(--section-space); text-align: center; }
+.boundary h2 { max-width: 14ch; margin-inline: auto; font-size: clamp(2.8rem, 5vw, 5rem); }
+.boundary > p:last-child { max-width: 43rem; margin: 1.5rem auto 0; color: var(--color-text-muted); }
+.closing { width: min(calc(100% - 2rem), var(--layout-wide)); min-height: clamp(29rem, 48vw, 36rem); margin: 0 auto var(--section-space); padding: clamp(2rem, 7vw, 7rem); border-radius: var(--radius-large); background: var(--color-surface); display: flex; flex-direction: column; align-items: flex-start; justify-content: center; }
+.closing h2 { max-width: 15ch; font-size: clamp(3rem, 5.8vw, 5.8rem); }
 .closing a { margin-top: 2rem; }
-
 @media (max-width: 900px) {
   .hero, .experience { grid-template-columns: 1fr; }
-  .grid { grid-template-columns: 1fr 1fr; }
+  .grid article, .grid article:nth-child(1), .grid article:nth-child(2), .grid article:nth-child(5), .grid article:nth-child(6) { grid-column: span 6; }
 }
-
 @media (max-width: 620px) {
   .hero, .experience, .boundary, .closing { width: calc(100% - 1.5rem); }
+  .hero h1 { font-size: clamp(4rem, 21vw, 6rem); }
   .catalog { padding-inline: 0.75rem; }
-  .grid { grid-template-columns: 1fr; }
-  .grid article { min-height: 19rem; }
-  .windowBody { grid-template-columns: 1fr; }
+  .grid { grid-template-columns: 1fr; gap: 0.75rem; margin-top: 2.5rem; }
+  .grid article, .grid article:nth-child(1), .grid article:nth-child(2), .grid article:nth-child(5), .grid article:nth-child(6) { grid-column: 1; min-height: 16rem; }
+  .windowBody { min-height: 25rem; grid-template-columns: 1fr; }
   .windowBody aside { display: none; }
   .windowHeading i { display: none; }
+}
+@media (max-width: 390px) {
+  .appRow div small { max-width: 9rem; }
 }

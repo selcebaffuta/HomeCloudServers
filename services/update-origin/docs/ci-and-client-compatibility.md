@@ -24,6 +24,11 @@ The harness now gives access logs and all HTTP temporary directories paths
 inside its private temporary prefix; early errors go to stderr. It still calls
 `nginx -t` and remains unprivileged. No chmod of host logs, sudo workaround,
 disabled logging, ignored exit codes or weaker TLS verification.
+The current ubuntu-latest runner also surfaced a privileged-port bind check
+during `nginx -t`. Test rendering now substitutes loopback high ports, as do the
+live HTTPS fixtures; production listeners80/443 are unchanged. Debian slim jobs
+install `ca-certificates` explicitly before Git checkout, retaining normal TLS
+verification instead of depending on optional package recommendations.
 
 ## Additional delivery fixes
 

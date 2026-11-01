@@ -58,7 +58,7 @@ jobs:
       - name: Install test dependencies in disposable container only
         run: |
           apt-get update
-          apt-get install --yes --no-install-recommends git nginx openssl python3 util-linux
+          apt-get install --yes --no-install-recommends ca-certificates git nginx openssl python3 util-linux
       - uses: actions/checkout@v4
         with:
           persist-credentials: false

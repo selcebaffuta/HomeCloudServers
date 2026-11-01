@@ -36,8 +36,16 @@ PY
     echo "error_log stderr notice;"
     echo "events {}"
     echo "http {"
+    # The distro default is /var/log/nginx/access.log, which the non-root CI
+    # user cannot open. Keep the test hermetic; do not elevate nginx -t.
+    echo "access_log $temporary/access.log;"
+    echo "client_body_temp_path $temporary/body;"
+    echo "proxy_temp_path $temporary/proxy;"
+    echo "fastcgi_temp_path $temporary/fastcgi;"
+    echo "uwsgi_temp_path $temporary/uwsgi;"
+    echo "scgi_temp_path $temporary/scgi;"
     cat "$rendered"
     echo "}"
 } > "$configuration"
 
-nginx -t -p "$temporary/" -c "$configuration"
+nginx -e stderr -t -p "$temporary/" -c "$configuration"

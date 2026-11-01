@@ -32,7 +32,8 @@ def timestamp(value):
     return value.replace(microsecond=0).isoformat().replace("+00:00", "Z")
 
 
-class UpdateOriginTest(unittest.TestCase):
+class SignedOriginFixture:
+    """Ephemeral test keys and signed fixtures; never real release material."""
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory()
         self.root = Path(self.temporary.name)
@@ -112,7 +113,7 @@ class UpdateOriginTest(unittest.TestCase):
 
     def release(
         self, sequence=1, *, payload=b"bundle-one", packages=None,
-        published_at=None, expires_at=None,
+        published_at=None, expires_at=None, os_version="13",
     ):
         bundle = self.root / f"bundle-{sequence}-{hashlib.sha256(payload).hexdigest()[:8]}.tar.gz"
         bundle.write_bytes(payload)
@@ -122,7 +123,7 @@ class UpdateOriginTest(unittest.TestCase):
             origin=ORIGIN, sequence=sequence,
             published_at=published_at or timestamp(now - dt.timedelta(minutes=1)),
             expires_at=expires_at or timestamp(now + dt.timedelta(days=7)),
-            os_id="debian", os_version="13", architecture="arm64",
+            os_id="debian", os_version=os_version, architecture="arm64",
             commit=COMMIT, release_sequence=sequence,
             bundle_sha256=digest, bundle_size=len(payload),
             packages=packages or [], reboot_required=False,
@@ -149,6 +150,8 @@ class UpdateOriginTest(unittest.TestCase):
             signature_path=signature, bundle_path=bundle,
         )
 
+
+class UpdateOriginTest(SignedOriginFixture, unittest.TestCase):
     def test_signed_release_is_published_content_addressed_and_idempotently(self):
         release = self.release()
         result = self.publish(release)

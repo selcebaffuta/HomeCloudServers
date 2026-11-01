@@ -1,3 +1,12 @@
+# Only successful immutable objects may be cached for a year. In particular,
+# a not-yet-published digest must not leave a negatively cached immutable 404.
+map $status $homecloud_update_artifact_cache_control {
+    default "no-store";
+    200 "public, max-age=31536000, immutable";
+    206 "public, max-age=31536000, immutable";
+    304 "public, max-age=31536000, immutable";
+}
+
 server {
     listen 80;
     listen [::]:80;
@@ -16,6 +25,7 @@ server {
     disable_symlinks on from=/srv/homecloud-updates;
     client_max_body_size 1k;
     etag on;
+    add_header Cache-Control "no-store" always;
 
     ssl_certificate __CERTIFICATE__;
     ssl_certificate_key __CERTIFICATE_KEY__;
@@ -43,7 +53,7 @@ server {
         deny all;
     }
 
-    location ~ "^/v1/[a-z0-9][a-z0-9-]*/(?:trust|debian-(?:12|13)-arm64)\.json(?:\.sig)?$" {
+    location ~ "^/v1/[a-z0-9][a-z0-9-]{0,31}/(?:trust|debian-(?:12|13)-arm64)\.json(?:\.sig)?$" {
         limit_except GET HEAD { deny all; }
         max_ranges 0;
         default_type application/octet-stream;
@@ -60,7 +70,7 @@ server {
         max_ranges 1;
         default_type application/gzip;
         try_files $uri =404;
-        add_header Cache-Control "public, max-age=31536000, immutable" always;
+        add_header Cache-Control $homecloud_update_artifact_cache_control always;
         add_header X-Content-Type-Options nosniff always;
         add_header Referrer-Policy no-referrer always;
         add_header Content-Security-Policy "default-src 'none'; frame-ancestors 'none'" always;

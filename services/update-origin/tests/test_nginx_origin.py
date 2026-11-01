@@ -131,7 +131,11 @@ class NginxOriginTest(SignedOriginFixture, unittest.TestCase):
         try:
             client.request(method, path, headers=headers or {})
             response = client.getresponse()
-            return response.status, dict((key.lower(), value) for key, value in response.getheaders()), response.read()
+            result = {}
+            for key, value in response.getheaders():
+                key = key.lower()
+                result[key] = result[key] + ", " + value if key in result else value
+            return response.status, result, response.read()
         finally:
             client.close()
 

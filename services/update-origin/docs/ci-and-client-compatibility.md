@@ -37,6 +37,9 @@ verification instead of depending on optional package recommendations.
   A status map now grants that policy only to 200/206/304; other responses use
   `no-store`. Unknown endpoints also explicitly use `no-store`. Metadata, trust
   signatures and health remain `no-store`.
+  The map is volatile: real Debian tests caught an initial success value being
+  reused when range filtering subsequently returned416. The regression combines
+  repeated header fields instead of hiding contradictory Cache-Control values.
 - The Nginx channel regex now matches the publisher's existing 1–32 character
   allowlist. No new platform/channel semantics or manifest fields are introduced.
 - Header inheritance remains explicit per location; security headers are kept

@@ -40,3 +40,32 @@ jobs:
           sudo apt-get install --yes nginx
       - name: Validate update-origin Nginx configuration
         run: services/update-origin/tests/check-nginx.sh
+      - name: Update-origin HTTPS transport regression tests (isolated loopback)
+        env:
+          HOMECLOUD_ORIGIN_NGINX_INTEGRATION: "1"
+        run: PYTHONPATH=services/update-origin/src python3 -m unittest discover -s services/update-origin/tests -p test_nginx_origin.py -v
+
+  debian-origin:
+    name: Update origin / Debian ${{ matrix.debian }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        debian: ["12", "13"]
+    container: debian:${{ matrix.debian }}-slim
+    steps:
+      - name: Install test dependencies in disposable container only
+        run: |
+          apt-get update
+          apt-get install --yes --no-install-recommends ca-certificates git nginx openssl python3 util-linux
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Render and validate as unprivileged user
+        run: runuser -u nobody -- services/update-origin/tests/check-nginx.sh
+      - name: Signed HTTPS transport tests as unprivileged user
+        run: >-
+          runuser -u nobody -- env CI=true HOMECLOUD_ORIGIN_NGINX_INTEGRATION=1
+          PYTHONPATH=services/update-origin/src python3 -m unittest discover
+          -s services/update-origin/tests -p test_nginx_origin.py -v

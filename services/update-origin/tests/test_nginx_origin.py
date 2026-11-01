@@ -146,6 +146,11 @@ class NginxOriginTest(SignedOriginFixture, unittest.TestCase):
         self.assertEqual(headers["strict-transport-security"], "max-age=31536000")
         self.assertNotRegex(headers["server"], r"nginx/\d")
 
+    def no_store(self, headers):
+        # Error filtering may repeat the same header, but never permit mixed
+        # no-store/immutable directives hidden by dict(last-header-wins).
+        self.assertEqual({value.strip() for value in headers["cache-control"].split(",")}, {"no-store"})
+
     def verify_signed_response(self, path, payload, signature, public):
         downloaded = self.root / "downloaded.json"
         detached = self.root / "downloaded.sig"
@@ -200,7 +205,7 @@ class NginxOriginTest(SignedOriginFixture, unittest.TestCase):
         self.assertEqual(self.request(self.bundle_path, "HEAD")[2], b"")
         status, headers, subset = self.request(self.bundle_path, headers={"Range": "bytes=0-3"})
         self.assertEqual((status, subset), (206, body[:4]))
-        self.assertIn("immutable", headers["cache-control"])
+        self.no_store(headers)
         status, headers, empty = self.request(self.bundle_path, headers={"If-None-Match": self.request(self.bundle_path)[1]["etag"]})
         self.assertEqual((status, empty), (304, b""))
         self.assertIn("immutable", headers["cache-control"])
@@ -222,7 +227,10 @@ class NginxOriginTest(SignedOriginFixture, unittest.TestCase):
                     self.security_headers(headers)
         status, headers, _ = self.request(self.bundle_path, headers={"Range": "bytes=999999999-"})
         self.assertEqual(status, 416)
-        self.assertEqual(headers["cache-control"], "no-store")
+        self.no_store(headers)
+        status, headers, _ = self.request(self.bundle_path, headers={"If-Match": '"not-the-etag"'})
+        self.assertEqual(status, 412)
+        self.no_store(headers)
 
     def test_allowlist_traversal_symlinks_and_private_paths(self):
         marker = b"PRIVATE TEST MARKER: MUST NOT BE SERVED"

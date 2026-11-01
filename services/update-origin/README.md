@@ -321,8 +321,9 @@ log/directory temporanee isolate. Prove HTTPS reali opt-in verificano endpoint,
 byte firmati, artifact/hash/size, errori, cache, metodi e verifica TLS; gli stessi
 controlli Nginx girano anche in container Debian12/13 disposable.
 
-Gli artifact riusciti (200/206/304) sono immutable; gli errori sono `no-store`,
-come health e metadata. Non si conserva una risposta404 come artifact immutabile.
+Gli artifact completi e le relative rivalidazioni (200/304) sono immutable;
+richieste Range/precondizioni ed errori sono `no-store`, come health e metadata.
+I range restano supportati; non si conserva una risposta404/416 come artifact immutabile.
 Nessuna chiave privata reale, release installabile o servizio production è usato
 nei test. [Diagnosi CI, copertura e compatibilità client](docs/ci-and-client-compatibility.md)
 distinguono verifiche automatiche, revisione del contratto e gate appliance aperti.

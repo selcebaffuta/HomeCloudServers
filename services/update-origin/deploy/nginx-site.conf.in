@@ -1,13 +1,13 @@
 # Only successful immutable objects may be cached for a year. In particular,
 # a not-yet-published digest must not leave a negatively cached immutable 404.
-map $status $homecloud_update_artifact_cache_control {
-    # Range processing can change an initially successful response to 416.
-    # Do not reuse the map value evaluated before the error response pass.
+map "$status:$http_range:$http_if_match:$http_if_unmodified_since" $homecloud_update_artifact_cache_control {
+    # Stock header filters may run before Range/precondition errors and retain
+    # earlier headers. Keep ALL such requests no-store, including successful
+    # partial content, rather than sending contradictory immutable/no-store.
     volatile;
     default "no-store";
-    200 "public, max-age=31536000, immutable";
-    206 "public, max-age=31536000, immutable";
-    304 "public, max-age=31536000, immutable";
+    "200:::" "public, max-age=31536000, immutable";
+    "304:::" "public, max-age=31536000, immutable";
 }
 
 server {

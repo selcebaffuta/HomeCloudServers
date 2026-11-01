@@ -34,12 +34,16 @@ verification instead of depending on optional package recommendations.
 
 - Previously the artifact location used `add_header Cache-Control ... immutable
   always`: this also marked missing/denied/error responses immutable for a year.
-  A status map now grants that policy only to 200/206/304; other responses use
+  A status/request map now grants that policy only to full200/304; other responses use
   `no-store`. Unknown endpoints also explicitly use `no-store`. Metadata, trust
   signatures and health remain `no-store`.
-  The map is volatile: real Debian tests caught an initial success value being
-  reused when range filtering subsequently returned416. The regression combines
-  repeated header fields instead of hiding contradictory Cache-Control values.
+  Real Debian tests caught an initial success header being retained when range
+  filtering subsequently returned416; a volatile status map alone produced both
+  immutable and no-store. All Range/If-Match/If-Unmodified-Since requests therefore
+  conservatively use no-store, including successful206. This preserves range
+  functionality and full-object caching without filter-order assumptions. The
+  regression combines repeated fields and allows only mutually consistent
+  no-store values on late416/412 responses. No third-party Nginx module is needed.
 - The Nginx channel regex now matches the publisher's existing 1–32 character
   allowlist. No new platform/channel semantics or manifest fields are introduced.
 - Header inheritance remains explicit per location; security headers are kept
@@ -56,7 +60,7 @@ verification instead of depending on optional package recommendations.
 - exact signed Debian12/13 manifests and trust JSON/signature bytes, independently
   verified by OpenSSL after actual HTTPS transfer;
 - content-addressed artifact SHA-256/size/MIME, HEAD, ETag/304, single range/206;
-- no immutable caching for 404, forbidden methods or unsatisfiable ranges/416;
+- no immutable caching for 404, forbidden methods, ranges/416 or failed preconditions/412;
 - malformed/overlong/traversal/private/symlink paths cannot export test markers;
 - HTTP upgrade destination, TLS1.2/1.3 and rejection of wrong hostname/untrusted CA.
 

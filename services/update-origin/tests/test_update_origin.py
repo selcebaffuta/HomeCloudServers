@@ -32,7 +32,8 @@ def timestamp(value):
     return value.replace(microsecond=0).isoformat().replace("+00:00", "Z")
 
 
-class UpdateOriginTest(unittest.TestCase):
+class SignedOriginFixture:
+    """Ephemeral test keys and signed fixtures; never real release material."""
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory()
         self.root = Path(self.temporary.name)
@@ -112,18 +113,20 @@ class UpdateOriginTest(unittest.TestCase):
 
     def release(
         self, sequence=1, *, payload=b"bundle-one", packages=None,
-        published_at=None, expires_at=None,
+        published_at=None, expires_at=None, os_version="13", release_sequence=None, commit=None,
     ):
         bundle = self.root / f"bundle-{sequence}-{hashlib.sha256(payload).hexdigest()[:8]}.tar.gz"
         bundle.write_bytes(payload)
         digest = hashlib.sha256(payload).hexdigest()
         now = dt.datetime.now(dt.timezone.utc)
+        release_sequence = sequence if release_sequence is None else release_sequence
+        commit = commit if commit is not None else f"{release_sequence:040x}"
         plan = build_plan(
             origin=ORIGIN, sequence=sequence,
             published_at=published_at or timestamp(now - dt.timedelta(minutes=1)),
             expires_at=expires_at or timestamp(now + dt.timedelta(days=7)),
-            os_id="debian", os_version="13", architecture="arm64",
-            commit=COMMIT, release_sequence=sequence,
+            os_id="debian", os_version=os_version, architecture="arm64",
+            commit=commit, release_sequence=release_sequence,
             bundle_sha256=digest, bundle_size=len(payload),
             packages=packages or [], reboot_required=False,
         )
@@ -149,6 +152,8 @@ class UpdateOriginTest(unittest.TestCase):
             signature_path=signature, bundle_path=bundle,
         )
 
+
+class UpdateOriginTest(SignedOriginFixture, unittest.TestCase):
     def test_signed_release_is_published_content_addressed_and_idempotently(self):
         release = self.release()
         result = self.publish(release)
@@ -394,6 +399,147 @@ class UpdateOriginTest(unittest.TestCase):
             ],
             check=True, capture_output=True,
         )
+
+    def test_first_publish_recovers_missing_signature_only_for_exact_plan(self):
+        publication = self.root / "publication"
+        approved = self.release(sequence=41)
+        endpoint = publication / "v1/stable/debian-13-arm64.json"
+        signature_path = endpoint.with_suffix(".json.sig")
+        replace = publisher_module.os.replace
+
+        def fail_first_signature(source, target):
+            if Path(target) == signature_path:
+                raise OSError("simulated interruption before signature rename")
+            return replace(source, target)
+
+        with mock.patch.object(publisher_module.os, "replace", side_effect=fail_first_signature):
+            with self.assertRaises(OSError):
+                self.publish(approved, publication)
+        self.assertEqual(endpoint.read_bytes(), approved[1].read_bytes())
+        self.assertFalse(signature_path.exists())
+
+        for sequence in (40, 41, 42):
+            with self.subTest(sequence=sequence):
+                other = self.release(sequence=sequence, payload=b"not-the-approved-plan")
+                with self.assertRaisesRegex(UpdateOriginError, "incompleto"):
+                    self.publish(other, publication)
+                self.assertFalse(signature_path.exists())
+
+        self.publish(approved, publication)
+        self.assertEqual(signature_path.read_bytes(), approved[2].read_bytes())
+        endpoint.unlink()  # Signature-only is not a trusted sequence floor.
+        with self.assertRaisesRegex(UpdateOriginError, "incompleto"):
+            self.publish(approved, publication)
+
+    def test_trust_retry_requires_exact_metadata_when_signature_is_missing(self):
+        publication = self.root / "publication"
+        publisher = Publisher(publication, self.public_key, ORIGIN)
+        first = self.trust_release(1, [self.key_entry(self.public_key)])
+        second = self.trust_release(2, [self.key_entry(self.public_key)])
+
+        def publish(data):
+            return publisher.publish_trust(
+                channel="stable", metadata_path=data[1], signature_path=data[2],
+                root_public_key=self.public_key,
+            )
+
+        endpoint = publication / publish(first)["metadata_path"]
+        signature_path = endpoint.with_suffix(".json.sig")
+        signature_path.unlink()
+        with self.assertRaisesRegex(UpdateOriginError, "incompleto"):
+            publish(second)
+        self.assertFalse(signature_path.exists())
+        publish(first)
+        self.assertEqual(signature_path.read_bytes(), first[2].read_bytes())
+        publish(second)
+        with self.assertRaisesRegex(UpdateOriginError, "monotono"):
+            publish(first)
+
+    def test_promotion_does_not_switch_when_audit_directory_cannot_be_synced(self):
+        publication = self.root / "publication"
+        publisher = Publisher(publication, self.public_key, ORIGIN)
+        stable = self.release(sequence=8)
+        self.publish(stable, publication)
+        staged = self.release(sequence=9)
+        publisher.publish(channel="staging", plan_path=staged[1],
+                          signature_path=staged[2], bundle_path=staged[3])
+        original = publisher_module._fsync_directory
+
+        def fail_audit(path):
+            if path == publication / ".audit":
+                raise OSError(errno.EIO, "simulated audit directory sync failure")
+            return original(path)
+
+        with mock.patch.object(publisher_module, "_fsync_directory", side_effect=fail_audit):
+            with self.assertRaises(OSError):
+                publisher.promote(platform="debian-13-arm64")
+        endpoint = publication / "v1/stable/debian-13-arm64.json"
+        self.assertEqual(endpoint.read_bytes(), stable[1].read_bytes())
+        self.assertEqual(endpoint.with_suffix(".json.sig").read_bytes(), stable[2].read_bytes())
+
+    def test_promotion_cli_pins_the_staging_plan_that_was_reviewed(self):
+        publication = self.root / "publication"
+        publisher = Publisher(publication, self.public_key, ORIGIN)
+
+        def stage(release):
+            return publisher.publish(channel="staging", plan_path=release[1],
+                                     signature_path=release[2], bundle_path=release[3])
+
+        self.publish(self.release(sequence=41), publication)
+        stable = publication / "v1/stable/debian-13-arm64.json"
+        before = stable.read_bytes()
+        first = stage(self.release(sequence=42))
+        second = stage(self.release(sequence=43))
+        command = ["promote", "--origin", ORIGIN, "--platform", "debian-13-arm64",
+                   "--root", str(publication), "--public-key", str(self.public_key),
+                   "--key-directory", str(self.root / "absent-keyring"), "--expected-plan-sha256"]
+        with self.assertRaisesRegex(SystemExit, "piano approvato"):
+            main([*command, first["plan_sha256"]])
+        self.assertEqual(stable.read_bytes(), before)
+        self.assertFalse((publication / ".audit").exists())
+
+        with redirect_stdout(io.StringIO()) as receipt:
+            main([*command, second["plan_sha256"]])
+        self.assertEqual(json.loads(receipt.getvalue())["plan_sha256"], second["plan_sha256"])
+        self.assertEqual(hashlib.sha256(stable.read_bytes()).hexdigest(), second["plan_sha256"])
+
+    def test_new_plan_cannot_downgrade_runtime_or_change_sequence_of_same_commit(self):
+        publication = self.root / "publication"
+        approved = self.release(sequence=10, release_sequence=4)
+        self.publish(approved, publication)
+        for runtime_sequence, commit in ((3, None), (4, COMMIT), (5, approved[0]["homecloud"]["commit"])):
+            with self.subTest(runtime_sequence=runtime_sequence, commit=commit):
+                with self.assertRaisesRegex(UpdateOriginError, "release_sequence"):
+                    self.publish(self.release(sequence=11, release_sequence=runtime_sequence,
+                                              commit=commit), publication)
+
+        # Renewal and package-only plans for the same installed runtime remain valid.
+        renewed = self.release(sequence=12, release_sequence=4,
+                               packages=[{"name": "openssl", "version": "1:3.5.1-1+deb13u1", "reason": "security"}])
+        self.assertEqual(self.publish(renewed, publication)["sequence"], 12)
+
+    def test_valid_ecdsa_signature_does_not_satisfy_rsa_release_contract(self):
+        private, public = self.root / "ec-test-key.pem", self.root / "ec-test-public.pem"
+        subprocess.run(["/usr/bin/openssl", "genpkey", "-algorithm", "EC", "-pkeyopt",
+                        "ec_paramgen_curve:P-256", "-out", str(private)], check=True, capture_output=True, timeout=30)
+        subprocess.run(["/usr/bin/openssl", "pkey", "-in", str(private), "-pubout", "-out", str(public)],
+                       check=True, capture_output=True, timeout=30)
+        release = self.release()
+        subprocess.run(["/usr/bin/openssl", "dgst", "-sha256", "-sign", str(private),
+                        "-out", str(release[2]), str(release[1])], check=True, capture_output=True, timeout=30)
+        subprocess.run(["/usr/bin/openssl", "dgst", "-sha256", "-verify", str(public),
+                        "-signature", str(release[2]), str(release[1])], check=True, capture_output=True, timeout=30)
+
+        publication = self.root / "publication"
+        publisher = Publisher(publication, public, ORIGIN)
+        with self.assertRaisesRegex(UpdateOriginError, "Firma"):
+            publisher.publish(channel="stable", plan_path=release[1], signature_path=release[2], bundle_path=release[3])
+        self.assertFalse((publication / "v1/stable/debian-13-arm64.json").exists())
+
+        trust = self.trust_release(1, [self.key_entry(public)])
+        with self.assertRaisesRegex(UpdateOriginError, "Chiave release"):
+            publisher.publish_trust(channel="stable", metadata_path=trust[1], signature_path=trust[2],
+                                    root_public_key=self.public_key)
 
     def test_publish_retry_repairs_partial_immutable_record(self):
         publication = self.root / "immutable-crash-publication"

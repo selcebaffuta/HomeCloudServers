@@ -137,6 +137,10 @@ Trasferire sul server soltanto bundle, piano e firma detached.
 
 ## Pubblicazione
 
+Seguire il [runbook di release controllata](docs/controlled-release.md)
+per qualificare la piattaforma, verificare i file via HTTPS e vincolare
+la promozione al digest collaudato.
+
 Sul server Debian:
 
 ```bash
@@ -180,8 +184,12 @@ sudo homecloud-update-origin publish \
 
 sudo homecloud-update-origin promote \
   --origin https://updates.example.com \
-  --platform debian-13-arm64
+  --platform debian-13-arm64 \
+  --expected-plan-sha256 "$expected_plan_sha256"
 ```
+
+Usare per `expected_plan_sha256` il digest della ricevuta staging
+verificato durante il collaudo.
 
 La promozione riusa byte per byte piano e firma staging. Il canale non è parte
 del documento firmato: generare un nuovo JSON stable richiederebbe una seconda
@@ -316,7 +324,17 @@ python3 -m unittest discover -s services/update-origin/tests -v
 ```
 
 La CI installa inoltre Nginx e valida la configurazione renderizzata con un
-certificato effimero tramite `tests/check-nginx.sh`.
+certificato effimero tramite `tests/check-nginx.sh`, senza privilegi e con
+log/directory temporanee isolate. Prove HTTPS reali opt-in verificano endpoint,
+byte firmati, artifact/hash/size, errori, cache, metodi e verifica TLS; gli stessi
+controlli Nginx girano anche in container Debian12/13 disposable.
+
+Gli artifact completi e le relative rivalidazioni (200/304) sono immutable;
+richieste Range/precondizioni ed errori sono `no-store`, come health e metadata.
+I range restano supportati; non si conserva una risposta404/416 come artifact immutabile.
+Nessuna chiave privata reale, release installabile o servizio production è usato
+nei test. [Diagnosi CI, copertura e compatibilità client](docs/ci-and-client-compatibility.md)
+distinguono verifiche automatiche, revisione del contratto e gate appliance aperti.
 
 ## Operazioni e sviluppi futuri
 

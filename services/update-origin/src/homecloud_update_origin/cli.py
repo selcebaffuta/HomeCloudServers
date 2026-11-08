@@ -34,7 +34,7 @@ def _package(value: str) -> dict:
 
 
 def _public_key(path: Path) -> bytes:
-    flags = os.O_RDONLY | getattr(os, "O_CLOEXEC", 0) | getattr(os, "O_NOFOLLOW", 0)
+    flags = os.O_RDONLY | getattr(os, "O_CLOEXEC", 0) | getattr(os, "O_NOFOLLOW", 0) | os.O_NONBLOCK
     try:
         descriptor = os.open(path, flags)
     except OSError as error:
@@ -58,7 +58,7 @@ def _public_key(path: Path) -> bytes:
         snapshot.write_bytes(payload)
         try:
             result = subprocess.run(
-                ["/usr/bin/openssl", "pkey", "-pubin", "-in", str(snapshot), "-noout"],
+                ["/usr/bin/openssl", "rsa", "-pubin", "-in", str(snapshot), "-noout"],
                 check=False, capture_output=True, timeout=30,
             )
         except (OSError, subprocess.TimeoutExpired) as error:
@@ -109,7 +109,7 @@ def _publish(args) -> None:
 def _promote(args) -> None:
     result = _publisher(args).promote(
         platform=args.platform, source_channel=args.source_channel,
-        target_channel=args.target_channel,
+        target_channel=args.target_channel, expected_plan_sha256=args.expected_plan_sha256,
     )
     print(json.dumps(result, indent=2, sort_keys=True))
 
@@ -220,6 +220,7 @@ def parser() -> argparse.ArgumentParser:
     promote.add_argument("--platform", choices=("debian-12-arm64", "debian-13-arm64"), required=True)
     promote.add_argument("--source-channel", default="staging")
     promote.add_argument("--target-channel", default="stable")
+    promote.add_argument("--expected-plan-sha256", help="SHA-256 del piano staging collaudato")
     promote.add_argument("--root", type=Path, default=Path("/srv/homecloud-updates"))
     promote.add_argument(
         "--public-key", type=Path,

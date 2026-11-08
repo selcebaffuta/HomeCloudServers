@@ -15,7 +15,7 @@ from contextlib import contextmanager
 from pathlib import Path
 
 from .model import (
-    CHANNEL_PATTERN, UpdateOriginError, platform_key, validate_plan,
+    CHANNEL_PATTERN, HASH_PATTERN, UpdateOriginError, platform_key, validate_plan,
     validate_trust_metadata,
 )
 
@@ -27,7 +27,7 @@ PLATFORM_KEYS = {"debian-12-arm64", "debian-13-arm64"}
 
 
 def _open_regular(path: Path, maximum: int, *, trusted=False):
-    flags = os.O_RDONLY | getattr(os, "O_CLOEXEC", 0) | getattr(os, "O_NOFOLLOW", 0)
+    flags = os.O_RDONLY | os.O_CLOEXEC | os.O_NOFOLLOW | os.O_NONBLOCK
     try:
         descriptor = os.open(path, flags)
     except OSError as error:
@@ -109,6 +109,8 @@ def _public_directory(path: Path) -> None:
     else:
         path.mkdir(mode=0o755)
     path.chmod(0o755)
+    # The link to a new channel/history directory must survive a crash too.
+    _fsync_directory(path.parent)
 
 
 def _private_directory(path: Path) -> None:
@@ -123,6 +125,7 @@ def _private_directory(path: Path) -> None:
     else:
         path.mkdir(mode=0o700)
     path.chmod(0o700)
+    _fsync_directory(path.parent)
 
 
 def _atomic_bytes(path: Path, payload: bytes) -> None:
@@ -155,6 +158,7 @@ def _install_content_addressed(source: Path, target: Path, digest: str, size: in
             os.close(descriptor)
         if existing_size != size or existing_digest.hexdigest() != digest:
             raise UpdateOriginError("Un bundle content-addressed esistente non corrisponde all'hash.")
+        _fsync_directory(target.parent)
         return
     descriptor, temporary_name = tempfile.mkstemp(prefix=f".{target.name}-", dir=target.parent)
     os.close(descriptor)
@@ -192,6 +196,29 @@ def _install_immutable_pair(
         _atomic_bytes(payload_path, payload)
     if not signature_present:
         _atomic_bytes(signature_path, signature)
+    _fsync_directory(payload_path.parent)
+
+
+def _previous_pair(endpoint: Path, signature: Path, candidate: bytes) -> tuple[bytes, bytes] | None:
+    """Return the pair to authenticate before replacing different metadata.
+
+    The incoming bytes were already verified. An exact retry can finish a
+    plan-first switch even when its signature has never existed. No different
+    candidate can establish a sequence floor from a partial pair.
+    """
+    plan_exists = endpoint.exists() or endpoint.is_symlink()
+    signature_exists = signature.exists() or signature.is_symlink()
+    if not plan_exists and not signature_exists:
+        return None
+    if not plan_exists:
+        raise UpdateOriginError("Stato del canale incompleto.")
+    current = _secure_bytes(endpoint, MAX_PLAN_SIZE, trusted=True)
+    current_signature = _secure_bytes(signature, MAX_SIGNATURE_SIZE, trusted=True) if signature_exists else None
+    if current == candidate:
+        return None
+    if current_signature is None:
+        raise UpdateOriginError("Stato del canale incompleto.")
+    return current, current_signature
 
 
 class Publisher:
@@ -216,7 +243,7 @@ class Publisher:
 
     def promote(
         self, *, platform: str, source_channel: str = "staging",
-        target_channel: str = "stable",
+        target_channel: str = "stable", expected_plan_sha256: str | None = None,
     ) -> dict:
         """Promote one already-published, signed release without rebuilding it."""
         self._validate_channel(source_channel)
@@ -225,10 +252,14 @@ class Publisher:
             raise UpdateOriginError("I canali sorgente e destinazione devono essere diversi.")
         if platform not in PLATFORM_KEYS:
             raise UpdateOriginError("Piattaforma di promozione non valida.")
+        if expected_plan_sha256 is not None and (
+            not isinstance(expected_plan_sha256, str) or not HASH_PATTERN.fullmatch(expected_plan_sha256)
+        ):
+            raise UpdateOriginError("SHA-256 del piano atteso non valido.")
         with self._publication_lock():
             return self._promote_locked(
                 platform=platform, source_channel=source_channel,
-                target_channel=target_channel,
+                target_channel=target_channel, expected_plan_sha256=expected_plan_sha256,
             )
 
     def publish_trust(
@@ -314,8 +345,7 @@ class Publisher:
             plan_bytes = plan_copy.read_bytes()
             signature_bytes = signature_copy.read_bytes()
             self._check_sequence(
-                endpoint, endpoint_signature, plan, plan_bytes, signature_bytes,
-                key_copies,
+                endpoint, endpoint_signature, plan, plan_bytes, key_copies,
             )
 
             bundle_target = self.root / "releases" / f"{bundle_digest}.tar.gz"
@@ -341,7 +371,7 @@ class Publisher:
                 "metadata_path": str(endpoint.relative_to(self.root)),
             }
 
-    def _promote_locked(self, *, platform, source_channel, target_channel):
+    def _promote_locked(self, *, platform, source_channel, target_channel, expected_plan_sha256):
         source = self.root / "v1" / source_channel / f"{platform}.json"
         source_signature = source.with_name(source.name + ".sig")
         if not source.exists() or not source_signature.exists():
@@ -354,6 +384,8 @@ class Publisher:
             signature_copy = staging / "release.json.sig"
             key_copies = []
             plan_digest, _ = _snapshot(source, plan_copy, MAX_PLAN_SIZE, trusted=True)
+            if expected_plan_sha256 is not None and plan_digest != expected_plan_sha256:
+                raise UpdateOriginError("Lo staging non corrisponde al piano approvato.")
             _snapshot(
                 source_signature, signature_copy, MAX_SIGNATURE_SIZE, trusted=True,
             )
@@ -382,8 +414,7 @@ class Publisher:
             plan_bytes = plan_copy.read_bytes()
             signature_bytes = signature_copy.read_bytes()
             self._check_sequence(
-                target, target_signature, plan, plan_bytes, signature_bytes,
-                key_copies,
+                target, target_signature, plan, plan_bytes, key_copies,
             )
 
             # The audit record is durable before the channel pointer changes.
@@ -443,7 +474,7 @@ class Publisher:
             signature_bytes = signature_copy.read_bytes()
             self._check_trust_sequence(
                 endpoint, endpoint_signature, metadata, metadata_bytes,
-                signature_bytes, root_copy, root_digest,
+                root_copy, root_digest,
             )
 
             immutable = self.root / "trust" / f"{metadata['sequence']}-{metadata_digest}.json"
@@ -512,6 +543,7 @@ class Publisher:
             os.fsync(descriptor)
         finally:
             os.close(descriptor)
+        _fsync_directory(directory)
 
     @staticmethod
     def _validate_embedded_release_keys(metadata: dict, directory: Path) -> None:
@@ -523,7 +555,7 @@ class Publisher:
             try:
                 result = subprocess.run(
                     [
-                        "/usr/bin/openssl", "pkey", "-pubin", "-in", str(path),
+                        "/usr/bin/openssl", "rsa", "-pubin", "-in", str(path),
                         "-noout",
                     ],
                     check=False, capture_output=True, timeout=30,
@@ -537,20 +569,12 @@ class Publisher:
 
     def _check_trust_sequence(
         self, endpoint, endpoint_signature, metadata, metadata_bytes,
-        signature_bytes, root_key, root_key_id,
+        root_key, root_key_id,
     ) -> None:
-        endpoint_present = endpoint.exists() or endpoint.is_symlink()
-        signature_present = endpoint_signature.exists() or endpoint_signature.is_symlink()
-        if not endpoint_present and not signature_present:
+        previous = _previous_pair(endpoint, endpoint_signature, metadata_bytes)
+        if previous is None:
             return
-        if not endpoint_present or not signature_present:
-            raise UpdateOriginError("Stato trust del canale incompleto.")
-        current_bytes = _secure_bytes(endpoint, MAX_PLAN_SIZE, trusted=True)
-        current_signature = _secure_bytes(
-            endpoint_signature, MAX_SIGNATURE_SIZE, trusted=True,
-        )
-        if current_bytes == metadata_bytes:
-            return
+        current_bytes, current_signature = previous
         with tempfile.TemporaryDirectory(prefix="current-trust-", dir=self.root) as temporary_name:
             temporary = Path(temporary_name)
             current_path = temporary / "trust.json"
@@ -578,20 +602,12 @@ class Publisher:
             raise UpdateOriginError("Una chiave trust revocata non può essere riattivata.")
 
     def _check_sequence(
-        self, endpoint, endpoint_signature, plan, plan_bytes, signature_bytes, keys,
+        self, endpoint, endpoint_signature, plan, plan_bytes, keys,
     ):
-        endpoint_present = endpoint.exists() or endpoint.is_symlink()
-        signature_present = endpoint_signature.exists() or endpoint_signature.is_symlink()
-        if not endpoint_present and not signature_present:
+        previous = _previous_pair(endpoint, endpoint_signature, plan_bytes)
+        if previous is None:
             return
-        if not endpoint_present or not signature_present:
-            raise UpdateOriginError("Stato del canale incompleto.")
-        current_plan = _secure_bytes(endpoint, MAX_PLAN_SIZE, trusted=True)
-        current_signature = _secure_bytes(
-            endpoint_signature, MAX_SIGNATURE_SIZE, trusted=True,
-        )
-        if current_plan == plan_bytes:
-            return
+        current_plan, current_signature = previous
         with tempfile.TemporaryDirectory(prefix="current-", dir=self.root) as temporary_name:
             temporary = Path(temporary_name)
             current_plan_path = temporary / "current.json"
@@ -606,6 +622,12 @@ class Publisher:
             raise UpdateOriginError("Il canale esistente appartiene a una piattaforma diversa.")
         if plan["sequence"] <= current["sequence"]:
             raise UpdateOriginError("La sequenza deve crescere in modo strettamente monotono.")
+        before, after = current["homecloud"], plan["homecloud"]
+        if before["commit"] == after["commit"]:
+            if before["release_sequence"] != after["release_sequence"]:
+                raise UpdateOriginError("release_sequence incoerente per lo stesso commit.")
+        elif after["release_sequence"] <= before["release_sequence"]:
+            raise UpdateOriginError("Downgrade o riuso di release_sequence per un nuovo commit.")
 
     @staticmethod
     def _verify_signature(plan: Path, signature: Path, public_key: Path) -> None:
@@ -613,7 +635,7 @@ class Publisher:
             result = subprocess.run(
                 [
                     "/usr/bin/openssl", "dgst", "-sha256", "-verify", str(public_key),
-                    "-signature", str(signature), str(plan),
+                    "-signature", str(signature), "-sigopt", "rsa_padding_mode:pkcs1", str(plan),
                 ],
                 check=False, capture_output=True, timeout=30,
             )

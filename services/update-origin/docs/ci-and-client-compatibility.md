@@ -54,7 +54,7 @@ verification instead of depending on optional package recommendations.
 ## Automated coverage and evidence boundaries
 
 `tests/check-nginx.sh` is the original syntax gate with isolated paths.
-`tests/test_nginx_origin.py` adds six opt-in unprivileged live-Nginx cases:
+`tests/test_nginx_origin.py` adds opt-in unprivileged live-Nginx cases:
 
 - GET/HEAD health and missing health →503, no-store/security headers;
 - exact signed Debian12/13 manifests and trust JSON/signature bytes, independently
@@ -62,7 +62,8 @@ verification instead of depending on optional package recommendations.
 - content-addressed artifact SHA-256/size/MIME, HEAD, ETag/304, single range/206;
 - no immutable caching for 404, forbidden methods, ranges/416 or failed preconditions/412;
 - malformed/overlong/traversal/private/symlink paths cannot export test markers;
-- HTTP upgrade destination, TLS1.2/1.3 and rejection of wrong hostname/untrusted CA.
+- HTTP upgrade destination, TLS1.2/1.3 and rejection of wrong hostname/untrusted CA;
+- incomplete signature yields non-cacheable 404; an exact signed retry restores the pair.
 
 Fixtures reuse the existing publisher signing helpers. All private keys are
 fresh temporary **test keys**, outside the publication root, deleted with the

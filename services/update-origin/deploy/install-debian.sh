@@ -61,7 +61,7 @@ for command in nginx openssl python3 systemctl sha256sum awk; do
         exit 1
     }
 done
-openssl pkey -pubin -in "$public_key" -noout >/dev/null 2>&1 || {
+openssl rsa -pubin -in "$public_key" -noout >/dev/null 2>&1 || {
     echo "Chiave pubblica di release non valida." >&2
     exit 1
 }
@@ -173,7 +173,7 @@ new_config_installed=true
 ln -s "$nginx_config" "$nginx_enabled"
 
 for installed_key in "$release_key_directory"/*.pem; do
-    openssl pkey -pubin -in "$installed_key" -noout >/dev/null
+    openssl rsa -pubin -in "$installed_key" -noout >/dev/null
 done
 if ! nginx -t; then
     echo "Configurazione Nginx non valida; ripristino quella precedente." >&2

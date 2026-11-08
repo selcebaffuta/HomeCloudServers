@@ -45,8 +45,11 @@ azzerare mai lo stato anti-replay dei client per far accettare un recupero.
 - **Garanzie:** la corruzione non può trasformarsi in una release accettata.
 - **Non fare:** modificare a mano JSON o firma in stable.
 - **Recupero:** ripristinare la coppia esatta dall'archivio immutabile oppure
-  ripetere la promozione dello stesso staging verificato. Se staging non è più
-  valido, firmare una nuova sequence.
+  ripetere la promozione dello stesso staging verificato, vincolata al digest
+  approvato. Se staging non è più valido, ripristinare prima la coppia
+  attendibile e poi firmare una nuova sequence. Se mancano entrambi i file,
+  verificare il floor nel registro offline: l'origin non può riconoscere da
+  solo la perdita di un canale.
 - **Limite:** piano e firma sono due file; un'interruzione può produrre
   temporaneamente una coppia incoerente, sempre fail-closed.
 

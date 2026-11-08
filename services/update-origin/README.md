@@ -137,6 +137,10 @@ Trasferire sul server soltanto bundle, piano e firma detached.
 
 ## Pubblicazione
 
+Seguire il [runbook di release controllata](docs/controlled-release.md)
+per qualificare la piattaforma, verificare i file via HTTPS e vincolare
+la promozione al digest collaudato.
+
 Sul server Debian:
 
 ```bash
@@ -180,8 +184,12 @@ sudo homecloud-update-origin publish \
 
 sudo homecloud-update-origin promote \
   --origin https://updates.example.com \
-  --platform debian-13-arm64
+  --platform debian-13-arm64 \
+  --expected-plan-sha256 "$expected_plan_sha256"
 ```
+
+Usare per `expected_plan_sha256` il digest della ricevuta staging
+verificato durante il collaudo.
 
 La promozione riusa byte per byte piano e firma staging. Il canale non è parte
 del documento firmato: generare un nuovo JSON stable richiederebbe una seconda

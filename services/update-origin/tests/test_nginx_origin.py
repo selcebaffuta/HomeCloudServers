@@ -232,6 +232,18 @@ class NginxOriginTest(SignedOriginFixture, unittest.TestCase):
         self.assertEqual(status, 412)
         self.no_store(headers)
 
+    def test_incomplete_pair_is_not_cacheable_and_exact_retry_recovers_over_https(self):
+        path = self.publication / (self.metadata_path.lstrip("/") + ".sig")
+        path.unlink()  # Only disposable fixture state is modified.
+        status, headers, _ = self.request(self.metadata_path + ".sig")
+        self.assertEqual(status, 404)
+        self.no_store(headers)
+        self.assertEqual(self.request(self.metadata_path)[0], 200)
+
+        self.publish(self.release_data, self.publication)
+        self.verify_signed_response(self.metadata_path, self.release_data[1],
+                                    self.release_data[2], self.public_key)
+
     def test_allowlist_traversal_symlinks_and_private_paths(self):
         marker = b"PRIVATE TEST MARKER: MUST NOT BE SERVED"
         outside = self.root / "outside"
